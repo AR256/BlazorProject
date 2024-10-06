@@ -1,0 +1,64 @@
+﻿@page "/items/add"
+@page "/items/edit/{Id:guid}"
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+<PageTitle>@(isEdit ? "Edit Item" : "Add New Item")</PageTitle>
+<h3>@(isEdit ? "Edit Item" : "Add New Item")</h3>
+
+<EditForm method="post" FormName="EditOrAddNewItemForm" Model="item" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label for="name">Name:</label>
+        <InputText id="name" @bind-Value="item.Name" />
+    </div>
+
+    <div>
+        <label for="code">Code:</label>
+        <InputText id="code" @bind-Value="item.Code" />
+    </div>
+
+    <button type="submit">@((isEdit) ? "Save Changes" : "Add Item")</button>
+</EditForm>
+
+<a href="/items" class="btn btn-primary">Cancel</a>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+    [SupplyParameterFromForm]
+    public  ItemDto item { get; set; } = new ItemDto();
+    private bool isEdit = false;
+    protected override async Task OnInitializedAsync()
+    {
+        isEdit = Id.HasValue;
+
+        if (isEdit)
+        {
+            // If editing, load the item details
+            item = await Mediator.Send(new GetItemByIdQuery { Id = Id.Value });
+        }
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (isEdit)
+        {
+            // Edit existing item
+            await Mediator.Send(new UpdateItemCommand(item.Id, item.Name, item.Code));
+        }
+        else
+        {
+            // Add new item
+            await Mediator.Send(new CreateItemCommand
+                {
+                    Name = item.Name,
+                    Code = item.Code
+                });
+        }
+
+        // Navigate back to items list after saving
+        Navigation.NavigateTo("/items");
+    }
+
+}

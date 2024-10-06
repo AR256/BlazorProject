@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorProject.Domain", "BlazorProject.Domain\BlazorProject.Domain.csproj", "{4B4A84D9-8350-4BF7-9BA6-C58BC342AC7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.Domain", "BlazorProject.Domain\BlazorProject.Domain.csproj", "{4B4A84D9-8350-4BF7-9BA6-C58BC342AC7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorProject.Application", "BlazorProject.Application\BlazorProject.Application.csproj", "{EB9FFECC-3DC2-46E8-B86E-FCABC28DCA07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.Application", "BlazorProject.Application\BlazorProject.Application.csproj", "{EB9FFECC-3DC2-46E8-B86E-FCABC28DCA07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorProject.Infrastructure", "BlazorProject.Infrastructure\BlazorProject.Infrastructure.csproj", "{613377A3-F7CB-40CB-BAC8-5FE6E6FAF778}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.Infrastructure", "BlazorProject.Infrastructure\BlazorProject.Infrastructure.csproj", "{613377A3-F7CB-40CB-BAC8-5FE6E6FAF778}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorProject.WebUI", "BlazorProject.WebUI\BlazorProject.WebUI.csproj", "{3EDAC9DF-881F-4272-8FEB-C240759AC799}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.Presentation", "BlazorProject.Presentation\BlazorProject.Presentation.csproj", "{5CC260E0-EF3E-4DD7-8B70-C1EBC1097E4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{613377A3-F7CB-40CB-BAC8-5FE6E6FAF778}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{613377A3-F7CB-40CB-BAC8-5FE6E6FAF778}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{613377A3-F7CB-40CB-BAC8-5FE6E6FAF778}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3EDAC9DF-881F-4272-8FEB-C240759AC799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3EDAC9DF-881F-4272-8FEB-C240759AC799}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3EDAC9DF-881F-4272-8FEB-C240759AC799}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3EDAC9DF-881F-4272-8FEB-C240759AC799}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CC260E0-EF3E-4DD7-8B70-C1EBC1097E4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CC260E0-EF3E-4DD7-8B70-C1EBC1097E4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CC260E0-EF3E-4DD7-8B70-C1EBC1097E4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CC260E0-EF3E-4DD7-8B70-C1EBC1097E4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

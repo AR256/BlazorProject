@@ -10,20 +10,12 @@ namespace BlazorProject.Domain.Entities
     public class Item
     {
         [Key]
-        public Guid Id { get; private set; }
-        public string Name { get; private set; }
-        public string Code { get; private set; }
-
-        public Item(Guid id, string name, string code)
-        {
-            Id = id;
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Code = code ?? throw new ArgumentNullException(nameof(code));
-        }
-        public void UpdateDetails(string name, string code)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Code = code ?? throw new ArgumentNullException(nameof(code));
-        }
+        public Guid Id { get; set; }
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+        public string Name { get; set; }
+        [Required(ErrorMessage = "Code is required.")]
+        [RegularExpression(@"^[A-Z0-9]+$", ErrorMessage = "Code must be alphanumeric.")]
+        public string Code { get; set; } 
     }
 }

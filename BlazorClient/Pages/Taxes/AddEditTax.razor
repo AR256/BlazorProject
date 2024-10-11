@@ -1,0 +1,60 @@
+﻿@page "/taxes/add"
+@page "/taxes/edit/{Id:guid}"
+@inject TaxService TaxService
+@inject NavigationManager Navigation
+<PageTitle>@(isEdit ? "Edit Tax" : "Add New Tax")</PageTitle>
+<h3>@(isEdit ? "Edit Tax" : "Add New Tax")</h3>
+
+<EditForm method="post" FormName="EditOrAddNewTaxForm" Model="tax" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label for="name" class="form-label">Name:</label>
+        <InputText id="name" @bind-Value="tax.Name" class="form-control w-50" />
+    </div>
+
+    <div>
+        <label for="code" class="form-label">Code:</label>
+        <InputText id="code" @bind-Value="tax.Code" class="form-control w-50" />
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">@((isEdit) ? "Save Changes" : "Add Tax")</button>
+</EditForm>
+
+<a href="/taxes" class="btn btn-secondary mt-2">Cancel</a>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+    [SupplyParameterFromForm]
+    public Tax tax { get; set; } = new();
+    private bool isEdit = false;
+    protected override async Task OnInitializedAsync()
+    {
+        isEdit = Id.HasValue;
+
+        if (isEdit)
+        {
+            // If editing, load the Tax details
+            tax = await TaxService.GetTaxByIdAsync(Id.Value);
+        }
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (isEdit)
+        {
+            // Edit existing Tax
+            await TaxService.UpdateTaxAsync(tax);
+        }
+        else
+        {
+            // Add new Tax
+            await TaxService.AddTaxAsync(tax);
+        }
+
+        // Navigate back to Taxes list after saving
+        Navigation.NavigateTo("/taxes");
+    }
+
+}

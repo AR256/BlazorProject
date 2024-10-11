@@ -1,0 +1,71 @@
+﻿@page "/customers"
+@inject CustomerService CustomerService
+@inject NavigationManager Navigation
+
+
+<h3>Customers</h3>
+
+<a href="/customers/add" class="btn btn-primary">Add New Customer</a>
+@if (isLoading)
+{
+    <br />
+    <div class="spinner-border mt-5" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (customers != null)
+            {
+                @foreach (var item in customers)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Code</td>
+                        <td>
+                            <a href="/customers/edit/@item.Id" class="btn btn-primary">Edit</a>
+                            <a @onclick="async () => await DeleteCustomer(item.Id)" class="btn btn-primary">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Customer> customers = new();
+    private bool isAddingcustomer = false;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        customers = await CustomerService.GetCustomersAsync();
+        isLoading = false;
+    }
+
+    private void NavigateToAddCustomer()
+    {
+        Navigation.NavigateTo("/customers/add");
+    }
+
+    private void EditCustomer(Guid id)
+    {
+        Navigation.NavigateTo($"/customers/edit/{id}");
+    }
+
+    private async Task DeleteCustomer(Guid id)
+    {
+        await CustomerService.DeleteCustomerAsync(id);
+        customers = await CustomerService.GetCustomersAsync(); // Refresh items list after deletion
+    }
+}

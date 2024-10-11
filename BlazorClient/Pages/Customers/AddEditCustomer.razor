@@ -1,0 +1,60 @@
+﻿@page "/customers/add"
+@page "/customers/edit/{Id:guid}"
+@inject CustomerService CustomerService
+@inject NavigationManager Navigation
+<PageTitle>@(isEdit ? "Edit Customer" : "Add New Customer")</PageTitle>
+<h3>@(isEdit ? "Edit customer" : "Add New customer")</h3>
+
+<EditForm method="post" FormName="EditOrAddNewCustomerForm" Model="customer" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label for="name" class="form-label">Name:</label>
+        <InputText id="name" @bind-Value="customer.Name" class="form-control w-50" />
+    </div>
+
+    <div>
+        <label for="code" class="form-label">Code:</label>
+        <InputText id="code" @bind-Value="customer.Code" class="form-control w-50" />
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">@((isEdit) ? "Save Changes" : "Add Customer")</button>
+</EditForm>
+
+<a href="/customers" class="btn btn-secondary mt-2">Cancel</a>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+    [SupplyParameterFromForm]
+    public Customer customer { get; set; } = new();
+    private bool isEdit = false;
+    protected override async Task OnInitializedAsync()
+    {
+        isEdit = Id.HasValue;
+
+        if (isEdit)
+        {
+            // If editing, load the item details
+            customer = await CustomerService.GetCustomerByIdAsync(Id.Value);
+        }
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (isEdit)
+        {
+            // Edit existing customer
+            await CustomerService.UpdateCustomerAsync(customer);
+        }
+        else
+        {
+            // Add new customer
+            await CustomerService.AddCustomerAsync(customer);
+        }
+
+        // Navigate back to customers list after saving
+        Navigation.NavigateTo("/customers");
+    }
+
+}

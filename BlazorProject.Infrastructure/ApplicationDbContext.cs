@@ -15,6 +15,8 @@ namespace BlazorProject.Infrastructure
         {
         }
         public DbSet<Item> Items { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Tax> Taxes { get; set; }
 
     }
 }

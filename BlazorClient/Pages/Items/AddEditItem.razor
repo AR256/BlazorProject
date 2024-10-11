@@ -1,6 +1,6 @@
 ﻿@page "/items/add"
 @page "/items/edit/{Id:guid}"
-@inject IMediator Mediator
+@inject ItemService ItemService
 @inject NavigationManager Navigation
 <PageTitle>@(isEdit ? "Edit Item" : "Add New Item")</PageTitle>
 <h3>@(isEdit ? "Edit Item" : "Add New Item")</h3>
@@ -10,25 +10,25 @@
     <ValidationSummary />
 
     <div>
-        <label for="name">Name:</label>
-        <InputText id="name" @bind-Value="item.Name" />
+        <label for="name" class="form-label">Name:</label>
+        <InputText id="name" @bind-Value="item.Name" class="form-control w-50" />
     </div>
 
     <div>
-        <label for="code">Code:</label>
-        <InputText id="code" @bind-Value="item.Code" />
+        <label for="code" class="form-label">Code:</label>
+        <InputText id="code" @bind-Value="item.Code" class="form-control w-50" />
     </div>
 
-    <button type="submit">@((isEdit) ? "Save Changes" : "Add Item")</button>
+    <button type="submit" class="btn btn-success mt-2">@((isEdit) ? "Save Changes" : "Add Item")</button>
 </EditForm>
 
-<a href="/items" class="btn btn-primary">Cancel</a>
+<a href="/items" class="btn btn-secondary mt-2">Cancel</a>
 
 @code {
     [Parameter]
     public Guid? Id { get; set; }
     [SupplyParameterFromForm]
-    public  CustomerDto item { get; set; } = new CustomerDto();
+    public  Item item { get; set; } = new();
     private bool isEdit = false;
     protected override async Task OnInitializedAsync()
     {
@@ -37,7 +37,7 @@
         if (isEdit)
         {
             // If editing, load the item details
-            item = await Mediator.Send(new GetItemByIdQuery { Id = Id.Value });
+            item = await ItemService.GetItemByIdAsync(Id.Value);
         }
     }
     private async Task HandleValidSubmit()
@@ -45,16 +45,12 @@
         if (isEdit)
         {
             // Edit existing item
-            await Mediator.Send(new UpdateItemCommand(item.Id, item.Name, item.Code));
+            await ItemService.UpdateItemAsync(item);
         }
         else
         {
             // Add new item
-            await Mediator.Send(new CreateItemCommand
-                {
-                    Name = item.Name,
-                    Code = item.Code
-                });
+            await ItemService.AddItemAsync(item);
         }
 
         // Navigate back to items list after saving

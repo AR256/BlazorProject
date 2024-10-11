@@ -1,4 +1,4 @@
-﻿using BlazorProject.Application.Queries;
+﻿
 using BlazorProject.Domain.Interfaces;
 using BlazorProject.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +21,8 @@ namespace BlazorProject.Infrastructure.DependencyInjection
                 b => b.MigrationsAssembly("BlazorProject.Infrastructure")));
 
             services.AddScoped<IItemRepository, ItemRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ITaxRepository, TaxRepository>();
             return services;
         }
     }

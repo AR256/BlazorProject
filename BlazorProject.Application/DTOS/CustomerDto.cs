@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorProject.Domain.Entities
+namespace BlazorProject.Application.DTOS
 {
-    public class Tax
+    public class CustomerDTO
     {
-        [Key]
         public Guid Id { get; set; }
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]

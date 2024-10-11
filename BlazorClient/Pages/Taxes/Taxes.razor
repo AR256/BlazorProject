@@ -1,0 +1,71 @@
+﻿@page "/taxes"
+@inject TaxService TaxService
+@inject NavigationManager Navigation
+
+
+<h3>Taxes</h3>
+
+<a href="/taxes/add" class="btn btn-primary">Add New Tax</a>
+@if (isLoading)
+{
+    <br />
+    <div class="spinner-border mt-5" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (taxes != null)
+            {
+                @foreach (var item in taxes)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Code</td>
+                        <td>
+                            <a href="/items/edit/@item.Id" class="btn btn-primary">Edit</a>
+                            <a @onclick="async () => await DeleteTax(item.Id)" class="btn btn-primary">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Tax> taxes = new();
+    private bool isAddingTax = false;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        taxes = await TaxService.GetTaxesAsync();
+        isLoading = false;
+    }
+
+    private void NavigateToAddTax()
+    {
+        Navigation.NavigateTo("/taxes/add");
+    }
+
+    private void EditTax(Guid id)
+    {
+        Navigation.NavigateTo($"/taxes/edit/{id}");
+    }
+
+    private async Task DeleteTax(Guid id)
+    {
+        await TaxService.DeleteTaxAsync(id);
+        taxes = await TaxService.GetTaxesAsync();
+    }
+}

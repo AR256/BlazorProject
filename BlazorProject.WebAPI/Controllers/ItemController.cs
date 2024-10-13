@@ -32,7 +32,7 @@ namespace BlazorProject.WebAPI.Controllers
             return Ok(item);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] CustomerDto dto)
+        public async Task<IActionResult> CreateItem([FromBody] ItemDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -44,7 +44,7 @@ namespace BlazorProject.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateItem(Guid id, [FromBody] CustomerDto dto)
+        public async Task<IActionResult> UpdateItem(Guid id, [FromBody] ItemDto dto)
         {
             if (!ModelState.IsValid)
             {

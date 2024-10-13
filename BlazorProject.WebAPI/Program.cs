@@ -1,3 +1,4 @@
+using BlazorProject.Application.Services;
 using BlazorProject.Domain.Interfaces;
 using BlazorProject.Infrastructure;
 using BlazorProject.Infrastructure.Repositories;
@@ -12,6 +13,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ITaxRepository, TaxRepository>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<InvoiceService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -28,8 +31,13 @@ builder.Services.AddCors(options =>
                .AllowCredentials();                 
     });
 });
-
+builder.Services.AddControllers()
+   .AddJsonOptions(options =>
+   {
+       options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+   });
 var app = builder.Build();
+app.UseDeveloperExceptionPage();
 app.UseCors("AllowBlazorClient");
 
 // Configure the HTTP request pipeline.

@@ -1,0 +1,51 @@
+﻿@page "/invoices"
+@inject InvoiceService InvoiceService
+@inject CustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<h3>Invoices</h3>
+
+@if (invoices == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var invoice in invoices)
+        {
+            <li>
+                <strong>@invoice.Code</strong> - @(customers.Where(c => c.Id == invoice.CustomerId).FirstOrDefault().Name) (@invoice.Type)
+                <button @onclick="() => EditInvoice(invoice.Id)">Edit</button>
+                <button @onclick="() => DeleteInvoice(invoice.Id)">Delete</button>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Invoice> invoices;
+    private List<Customer> customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        invoices = await InvoiceService.GetAllInvoicesAsync();
+        customers = await CustomerService.GetCustomersAsync();
+    }
+
+    private void AddNewInvoice()
+    {
+        NavigationManager.NavigateTo("/invoices/add");
+    }
+
+    private void EditInvoice(Guid id)
+    {
+        NavigationManager.NavigateTo($"/invoices/edit/{id}");
+    }
+
+    private async Task DeleteInvoice(Guid id)
+    {
+        await InvoiceService.DeleteInvoiceAsync(id);
+        invoices = await InvoiceService.GetAllInvoicesAsync(); 
+    }
+}

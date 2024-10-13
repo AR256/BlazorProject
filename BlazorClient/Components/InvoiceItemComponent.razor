@@ -1,0 +1,94 @@
+﻿
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">    
+                <label for="itemName" class="form-label">Item Name:</label>
+                <InputSelect id="item-name" class="form-select" @bind-Value="Item.ItemId" @oninput="OnItemSearchChanged">
+                    @foreach (var availableItem in ItemsList)
+                    {
+                        <option value="@availableItem.Id">@availableItem.Name</option>
+                    }
+                </InputSelect>
+                <ul>
+                    @for (int i = 0; i < filteredItems.Count; i++)
+                    {
+                        <li @onclick="() => SelectItem(filteredItems[i])">@filteredItems[i].Name</li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-2">
+                <label for="quantity" class="form-label">Quantity:</label>
+                <InputNumber id="quantity" class="form-control" @bind-Value="Item.Quantity" />
+            </div>
+            <div class="col-md-2">
+                <label for="amountSold" class="form-label">Amount Sold:</label>
+                <InputNumber id="amountSold" class="form-control" @bind-Value="Item.Amount" />
+            </div>
+            <div class="col-md-2">
+                <h6 class="mt-4">Total: @Item.Total</h6>
+            </div>
+            <div class="col-md-2">
+                <h6 class="mt-4">Net Amount: @Item.NetAmount</h6>
+            </div>
+        </div>
+        <div class="mt-3">
+            <h5>Taxes</h5>
+            <button type="button" class="btn btn-secondary" @onclick="AddNewTax">Add Tax</button>
+
+            @for (int i = 0; i < Item.Taxes.Count; i++)
+            {
+                <InvoiceTaxComponent @bind-Tax="Item.Taxes[i]" TaxList="TaxList" OnRemove="RemoveTax"></InvoiceTaxComponent>
+            }
+            <div class="mt-3">
+                <button type="button" class="btn btn-danger" @onclick="RemoveThisItem">Remove Item</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public InvoiceItem Item { get; set; }
+    [Parameter] public List<Item> ItemsList { get; set; }
+    [Parameter] public List<Tax> TaxList { get; set; }
+    [Parameter] public EventCallback<InvoiceItem> OnRemove { get; set; }
+    [Parameter]
+    public EventCallback<InvoiceItem> ItemChanged { get; set; }
+    private string itemSearchTerm = "";
+    private List<Item> filteredItems = new List<Item>();
+
+    private void OnItemSearchChanged(ChangeEventArgs e)
+    {
+        itemSearchTerm = e.Value.ToString();
+        filteredItems = ItemsList
+            .Where(i => i.Name.Contains(itemSearchTerm, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private async Task OnItemChanged()
+    {
+
+        await ItemChanged.InvokeAsync(Item);
+    }
+
+    private void SelectItem(Item item)
+    {
+        Item.ItemId = item.Id;
+        filteredItems.Clear(); // Hide suggestions list
+    }
+
+    private void AddNewTax()
+    {
+        Item.Taxes.Add(new InvoiceItemTax());
+    }
+
+    private void RemoveTax(InvoiceItemTax tax)
+    {
+        Item.Taxes.Remove(tax);
+    }
+
+    private async Task RemoveThisItem()
+    {
+        await OnRemove.InvokeAsync(Item);
+    }
+}

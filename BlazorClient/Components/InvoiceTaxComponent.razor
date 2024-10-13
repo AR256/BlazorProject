@@ -1,0 +1,54 @@
+﻿<div class="row g-3 align-items-end mb-2">
+    <div class="col-md-6">
+        <label for="taxName">Tax Name:</label>
+        <InputSelect class="form-select" @bind-Value="Tax.TaxId" @oninput="OnTaxSearchChanged" >
+            @foreach (var availableTax in TaxList)
+            {
+                <option value="@availableTax.Id">@availableTax.Name</option>
+            }
+            </InputSelect>
+        <ul>
+            @foreach (var tax in filteredTaxes)
+            {
+                <li @onclick="() => SelectTax(tax)">@tax.Name</li>
+            }
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <label for="taxAmount" class="form-label">Tax Amount:</label>
+        <InputNumber id="taxAmount" class="form-control" @bind-Value="Tax.Amount" />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-danger" type="button" @onclick="RemoveThisTax">Remove Tax</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public InvoiceItemTax Tax { get; set; }
+    [Parameter]
+    public List<Tax> TaxList { get; set; }
+    [Parameter] public EventCallback<InvoiceItemTax> OnRemove { get; set; }
+    [Parameter]
+    public EventCallback<InvoiceItemTax> TaxChanged { get; set; }
+
+    private string taxSearchTerm = "";
+    private List<Tax> filteredTaxes = new List<Tax>();
+    private void OnTaxSearchChanged(ChangeEventArgs e)
+    {
+        taxSearchTerm = e.Value.ToString();
+        filteredTaxes = TaxList
+            .Where(t => t.Name.Contains(taxSearchTerm, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+    private void SelectTax(Tax tax)
+    {
+        Tax.Id = tax.Id;
+        filteredTaxes.Clear(); // Hide suggestions list
+    }
+    private async Task RemoveThisTax()
+    {
+        await OnRemove.InvokeAsync(Tax);
+    }
+
+}

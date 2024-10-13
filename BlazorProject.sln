@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.Application",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.Infrastructure", "BlazorProject.Infrastructure\BlazorProject.Infrastructure.csproj", "{613377A3-F7CB-40CB-BAC8-5FE6E6FAF778}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorProject.WebAPI", "BlazorProject.WebAPI\BlazorProject.WebAPI.csproj", "{797C2013-12DC-4C8B-990D-0C5980D62E5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.WebAPI", "BlazorProject.WebAPI\BlazorProject.WebAPI.csproj", "{797C2013-12DC-4C8B-990D-0C5980D62E5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorClient", "BlazorClient\BlazorClient.csproj", "{49C862F0-4BEE-4F3D-94CA-6730591C4EFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorClient", "BlazorClient\BlazorClient.csproj", "{49C862F0-4BEE-4F3D-94CA-6730591C4EFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

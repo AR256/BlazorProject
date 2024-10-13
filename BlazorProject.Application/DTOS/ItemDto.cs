@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BlazorProject.Application.DTOS
 {
-    public class CustomerDto
+    public class ItemDto
     {
         public Guid Id { get; set; }
         [Required(ErrorMessage = "Name is required.")]

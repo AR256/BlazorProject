@@ -11,7 +11,7 @@ namespace BlazorClient.Models
         public decimal Quantity { get; set; }
         public decimal Amount { get; set; }
         public decimal Total => Quantity * Amount;
-        public decimal NetAmount { get; set; }
+        public decimal NetAmount => Total + Taxes.Sum(i => i.Amount);
         public List<InvoiceItemTax> Taxes { get; set; } = new();
     }
 }

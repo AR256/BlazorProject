@@ -4,7 +4,7 @@
         <div class="row g-3">
             <div class="col-md-4">    
                 <label for="itemName" class="form-label">Item Name:</label>
-                <InputSelect id="item-name" class="form-select" @bind-Value="Item.ItemId" @oninput="OnItemSearchChanged">
+                <InputSelect id="item-name" class="form-select" @bind-Value="Item.ItemId">
                     @foreach (var availableItem in ItemsList)
                     {
                         <option value="@availableItem.Id">@availableItem.Name</option>
@@ -19,11 +19,11 @@
             </div>
             <div class="col-md-2">
                 <label for="quantity" class="form-label">Quantity:</label>
-                <InputNumber id="quantity" class="form-control" @bind-Value="Item.Quantity" />
+                <InputNumber id="quantity" class="form-control" @bind-Value="Item.Quantity" @oninput="RecalculateItemTotal" />
             </div>
             <div class="col-md-2">
-                <label for="amountSold" class="form-label">Amount Sold:</label>
-                <InputNumber id="amountSold" class="form-control" @bind-Value="Item.Amount" />
+                <label for="amountSold" class="form-label">Amount:</label>
+                <InputNumber id="amountSold" class="form-control" @bind-Value="Item.Amount" @oninput="RecalculateItemTotal" />
             </div>
             <div class="col-md-2">
                 <h6 class="mt-4">Total: @Item.Total</h6>
@@ -56,18 +56,13 @@
     public EventCallback<InvoiceItem> ItemChanged { get; set; }
     private string itemSearchTerm = "";
     private List<Item> filteredItems = new List<Item>();
-
-    private void OnItemSearchChanged(ChangeEventArgs e)
+    private void RecalculateItemTotal()
     {
-        itemSearchTerm = e.Value.ToString();
-        filteredItems = ItemsList
-            .Where(i => i.Name.Contains(itemSearchTerm, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        ItemChanged.InvokeAsync(Item);
     }
 
     private async Task OnItemChanged()
     {
-
         await ItemChanged.InvokeAsync(Item);
     }
 

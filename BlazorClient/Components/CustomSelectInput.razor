@@ -1,0 +1,28 @@
+﻿@typeparam TValue
+
+<select @onchange="OnValueChanged" class="form-control">
+    @ChildContent
+</select>
+
+@code {
+    [Parameter] public TValue Value { get; set; }
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    private async Task OnValueChanged(ChangeEventArgs e)
+    {
+        // Convert string to Guid or other TValue
+        if (typeof(TValue) == typeof(Guid))
+        {
+            if (Guid.TryParse(e.Value.ToString(), out var parsedValue))
+            {
+                await ValueChanged.InvokeAsync((TValue)(object)parsedValue);
+            }
+        }
+        else
+        {
+            // Fallback for other types
+            await ValueChanged.InvokeAsync((TValue)Convert.ChangeType(e.Value, typeof(TValue)));
+        }
+    }
+}

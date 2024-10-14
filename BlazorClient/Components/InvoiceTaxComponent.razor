@@ -16,7 +16,7 @@
     </div>
     <div class="col-md-4">
         <label for="taxAmount" class="form-label">Tax Amount:</label>
-        <InputNumber id="taxAmount" class="form-control" @bind-Value="Tax.Amount" />
+        <InputNumber id="taxAmount" class="form-control" @bind-Value="Tax.Amount" @oninput="RecalculateTax" />
     </div>
     <div class="col-md-2">
         <button class="btn btn-danger" type="button" @onclick="RemoveThisTax">Remove Tax</button>
@@ -28,7 +28,8 @@
     public InvoiceItemTax Tax { get; set; }
     [Parameter]
     public List<Tax> TaxList { get; set; }
-    [Parameter] public EventCallback<InvoiceItemTax> OnRemove { get; set; }
+    [Parameter] 
+    public EventCallback<InvoiceItemTax> OnRemove { get; set; }
     [Parameter]
     public EventCallback<InvoiceItemTax> TaxChanged { get; set; }
 
@@ -49,6 +50,10 @@
     private async Task RemoveThisTax()
     {
         await OnRemove.InvokeAsync(Tax);
+    }
+    private void RecalculateTax()
+    {
+        StateHasChanged();
     }
 
 }

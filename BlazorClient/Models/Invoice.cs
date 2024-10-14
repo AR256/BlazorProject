@@ -10,15 +10,15 @@ namespace BlazorClient.Models
         public string Code { get; set; }
         public Guid CustomerId { get; set; }
         public DateTime DateTimeIssued { get; set; }
-        public decimal NetAmount { get; set; }
+        public decimal NetAmount => InvoiceItems.Sum(x => x.NetAmount);
         public List<InvoiceItem> InvoiceItems { get; set; } = new();
 
     }
     public enum InvoiceType
     {
-        Invoice,
-        Debt,
-        Credit
+        Invoice = 0,
+        Debt = 1,
+        Credit = 2
     };
 
 

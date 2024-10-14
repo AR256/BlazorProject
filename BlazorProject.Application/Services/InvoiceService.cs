@@ -80,7 +80,7 @@ namespace BlazorProject.Application.Services
                 NetAmount = invoiceDto.NetAmount,
                 InvoiceItems = invoiceDto.InvoiceItems.Select(i => new InvoiceItem
                 {
-                    Id = newInvoiceItemId,
+                    Id = Guid.NewGuid(),
                     ItemId = i.ItemId,
                     InvoiceId = newInvoiceId,
                     Quantity = i.Quantity,
@@ -91,7 +91,7 @@ namespace BlazorProject.Application.Services
                         Id = Guid.NewGuid(),
                         TaxId = t.TaxId,
                         TaxAmount = t.Amount,
-                        InvoiceItemId = newInvoiceItemId
+                        InvoiceItemId = i.Id
                     }).ToList()
                 }).ToList()
             };
@@ -117,6 +117,7 @@ namespace BlazorProject.Application.Services
                     Id = itemId,
                     ItemId = item.ItemId,
                     Amount = item.Amount,
+                    Quantity = item.Quantity,
                     InvoiceId = item.InvoiceId,
                     InvoiceItemTaxes = item.Taxes.Select(tax => new InvoiceItemTax
                     {

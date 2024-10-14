@@ -5,47 +5,42 @@
 @inject CustomerService CustomerService
 @inject ItemService ItemService
 @inject NavigationManager NavigationManager
-    
-<h3 class="text-center mb-4">Create Invoice</h3>
 
-    <EditForm Model="invoice" OnValidSubmit="SaveInvoice">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <label for="type" class="form-label">Type:</label>
-                <InputSelect id="type" @bind-Value="invoice.Type" class="form-select">
-                    @foreach (var type in Enum.GetValues(typeof(InvoiceType)))
-                    {
+<h3 class="text-center mb-4">@((Id.HasValue ? "Edit" : "Create") + " Invoice")</h3>
+
+<EditForm Model="invoice" OnValidSubmit="SaveInvoice">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label for="type" class="form-label">Type:</label>
+            <InputSelect id="type" @bind-Value="invoice.Type" class="form-select">
+                @foreach (var type in Enum.GetValues(typeof(InvoiceType)).Cast<InvoiceType>())
+                {
                     <option value="@((int)type)">@type.ToString()</option>
-                    }
-                </InputSelect>
-            </div>
-            <div class="col-md-4">
-                <label for="code" class="form-label">Invoice Code:</label>
-                <InputText id="code" @bind-Value="invoice.Code" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label for="customer" class="form-label">Customer:</label>
-                <InputSelect id="customer" @bind-Value="invoice.CustomerId" @oninput="OnCustomerSearchChanged" class="form-control">
-                    @foreach (var customer in customers)
-                    {
-                        <option value="@customer.Id">@customer.Name</option>
-                    }
-                </InputSelect>
-                <ul>
-                    @foreach (var customer in filteredCustomers)
-                    {
-                        <li @onclick="() => SelectCustomer(customer)">@customer.Name</li>
-                    }
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label" for="date">Date Issued:</label>
-                <InputDate id="date" @bind-Value="invoice.DateTimeIssued" class="form-control" />
-            </div>
+                }
+            </InputSelect>
         </div>
-    
+        <div class="col-md-4">
+            <label for="code" class="form-label">Invoice Code:</label>
+            <InputText id="code" @bind-Value="invoice.Code" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label for="customer" class="form-label">Customer:</label>
+            <CustomSelectInput @bind-Value="invoice.CustomerId">
+                <option value="">--Select Customer--</option>
+                @foreach (var customer in customers)
+                {
+                    <option value="@customer.Id.ToString()">@customer.Name</option>
+                }
+            </CustomSelectInput>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="date">Date Issued:</label>
+            <InputDate id="date" @bind-Value="invoice.DateTimeIssued" class="form-control" />
+        </div>
+    </div>
+
     <div class="mb-4">
         <h4>Items</h4>
         <button type="button" class="btn btn-success mt-3" @onclick="AddNewItem">Add New Item</button>
@@ -62,19 +57,20 @@
         <span>@invoice.NetAmount</span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Submit Invoice</button>
-    </EditForm>
+    <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Submit Invoice</button>
+        <button type="button" class="btn btn-secondary" @onclick="GoBack">Back</button>
+    </div>
+</EditForm>
 
 @code {
     [Parameter]
     public Guid? Id { get; set; }
     private Invoice invoice = new Invoice();
-    private string customerSearchTerm = "";
     private List<Customer> customers = new List<Customer>();
-    private List<Customer> filteredCustomers = new List<Customer>();
-
     private List<Item> items = new List<Item>();
     private List<Tax> taxes = new List<Tax>();
+
     protected override async Task OnInitializedAsync()
     {
         if (Id.HasValue)
@@ -92,18 +88,6 @@
         items = await ItemService.GetItemsAsync();
         taxes = await TaxService.GetTaxesAsync();
     }
-    private void OnCustomerSearchChanged(ChangeEventArgs e)
-    {
-        customerSearchTerm = e.Value.ToString();
-        filteredCustomers = customers
-            .Where(c => c.Name.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-    }
-    private void SelectCustomer(Customer customer)
-    {
-        invoice.CustomerId = customer.Id;
-        filteredCustomers.Clear(); // Hide the suggestions list
-    }
 
     private void AddNewItem()
     {
@@ -114,13 +98,24 @@
     {
         invoice.InvoiceItems.Remove(item);
     }
+
     private async Task SaveInvoice()
     {
-        // Save invoice to backend using HttpClient
-        await InvoiceService.AddInvoiceAsync(invoice);
+        if (Id.HasValue)
+        {
+            // Update existing invoice
+            await InvoiceService.UpdateInvoiceAsync(invoice);
+        }
+        else
+        {
+            // Add new invoice
+            await InvoiceService.AddInvoiceAsync(invoice);
+        }
+        NavigationManager.NavigateTo("/invoices");
     }
-    private void HandleItemChanged(InvoiceItem updatedItem)
+
+    private void GoBack()
     {
-        // Logic to handle item updates (e.g., recalculating totals)
+        NavigationManager.NavigateTo("/invoices");
     }
 }

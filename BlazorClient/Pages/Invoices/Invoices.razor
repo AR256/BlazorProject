@@ -5,22 +5,32 @@
 
 <h3>Invoices</h3>
 
+<button class="btn btn-primary mb-3" @onclick="AddNewInvoice">Add Invoice</button>
+
 @if (invoices == null)
 {
     <p>Loading...</p>
 }
 else
 {
-    <ul>
+    <div class="row">
         @foreach (var invoice in invoices)
         {
-            <li>
-                <strong>@invoice.Code</strong> - @(customers.Where(c => c.Id == invoice.CustomerId).FirstOrDefault().Name) (@invoice.Type)
-                <button @onclick="() => EditInvoice(invoice.Id)">Edit</button>
-                <button @onclick="() => DeleteInvoice(invoice.Id)">Delete</button>
-            </li>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@invoice.Code</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            @(customers.Where(c => c.Id == invoice.CustomerId).FirstOrDefault()?.Name ?? "Unknown Customer")
+                        </h6>
+                        <p class="card-text">Type: @invoice.Type</p>
+                        <button class="btn btn-warning" @onclick="() => EditInvoice(invoice.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteInvoice(invoice.Id)">Delete</button>
+                    </div>
+                </div>
+            </div>
         }
-    </ul>
+    </div>
 }
 
 @code {
@@ -46,6 +56,6 @@ else
     private async Task DeleteInvoice(Guid id)
     {
         await InvoiceService.DeleteInvoiceAsync(id);
-        invoices = await InvoiceService.GetAllInvoicesAsync(); 
+        invoices = await InvoiceService.GetAllInvoicesAsync();
     }
 }

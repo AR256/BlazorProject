@@ -1,5 +1,5 @@
-﻿<div class="row g-3 align-items-end mb-2">
-    <div class="col-md-6">
+﻿<div class="row g-3 align-items-end my-2 border border-3 border-warning rounded rounded-3">
+    <div class="col-md-6 my-2">
         <label for="taxName">Tax Name:</label>
         <InputSelect class="form-select" @bind-Value="Tax.TaxId" @oninput="OnTaxSearchChanged" >
             @foreach (var availableTax in TaxList)
@@ -14,11 +14,11 @@
             }
         </ul>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4 pb-4">
         <label for="taxAmount" class="form-label">Tax Amount:</label>
         <InputNumber id="taxAmount" class="form-control" @bind-Value="Tax.Amount" @oninput="RecalculateTax" />
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 pb-4">
         <button class="btn btn-danger" type="button" @onclick="RemoveThisTax">Remove Tax</button>
     </div>
 </div>

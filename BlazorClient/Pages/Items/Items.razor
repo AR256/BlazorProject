@@ -5,7 +5,12 @@
 
 <h3>Items</h3>
 
-<a href="/items/add" class="btn btn-primary">Add New Item</a>
+<a href="/items/add" class="btn btn-primary mb-2">Add New Item</a>
+<div class="dropdown">
+    <input type="text" @bind="searchTerm" @oninput="FilterItems" class="form-control" placeholder="Search by Name or Code" autocomplete="off" />
+</div>
+
+
 
 @if (isLoading)
 {
@@ -16,7 +21,7 @@
 }
 else
 {
-    <table class="table table-hover">
+    <table class="table table-hover mt-2">
         <thead>
             <tr>
                 <th>Name</th>
@@ -25,33 +30,72 @@ else
             </tr>
         </thead>
         <tbody>
-            @if (items != null)
+            @if (filteredItems != null && filteredItems.Any())
             {
-                @foreach (var item in items)
+                @foreach (var item in filteredItems)
                 {
                     <tr>
                         <td>@item.Name</td>
                         <td>@item.Code</td>
                         <td>
-                            <a href="/items/edit/@item.Id" class="btn btn-primary">Edit</a>
-                            <a @onclick="async () => await DeleteItem(item.Id)" class="btn btn-primary">Delete</a>
+                            <a href="/items/edit/@item.Id" class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a @onclick="async () => await DeleteItem(item.Id)" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </td>
                     </tr>
                 }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3">No items found</td>
+                </tr>
             }
         </tbody>
     </table>
 }
 @code {
+    private string searchTerm = string.Empty;
     private List<Item> items = new();
     private bool isAddingItem = false;
     private bool isLoading = true;
+    private List<Item> filteredItems = new List<Item>();
+    private Item selectedItem;
 
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
         items = await ItemService.GetItemsAsync();
+        filteredItems = items;
         isLoading = false;
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString();
+        filteredItems = FilteredItems;
+    }
+    private List<Item> FilteredItems
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return new List<Item>();
+
+            return items.Where(item =>
+                item.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                item.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+    private void SelectItem(Item item)
+    {
+        selectedItem = item;
+        searchTerm = item.Name;  
+        filteredItems.Clear();  
     }
 
     private void NavigateToAddItem()
@@ -67,6 +111,21 @@ else
     private async Task DeleteItem(Guid id)
     {
         await ItemService.DeleteItemAsync(id);
-        items = await ItemService.GetItemsAsync(); // Refresh items list after deletion
+        items = await ItemService.GetItemsAsync();
+    }
+    private void FilterItems(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredItems = items;
+        }
+        else
+        {
+            filteredItems = items
+                .Where(item => item.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                               item.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
     }
 }

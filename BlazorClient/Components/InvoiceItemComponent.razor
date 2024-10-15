@@ -1,8 +1,8 @@
 ﻿
 <div class="card mb-3">
-    <div class="card-body">
+    <div class="card-body bg-dark text-light rounded rounded-3">
         <div class="row g-3">
-            <div class="col-md-4">    
+            <div class="col-md-6">    
                 <label for="itemName" class="form-label">Item Name:</label>
                 <InputSelect id="item-name" class="form-select" @bind-Value="Item.ItemId">
                     @foreach (var availableItem in ItemsList)
@@ -26,11 +26,11 @@
                 <InputNumber id="amountSold" class="form-control" @bind-Value="Item.Amount" @oninput="RecalculateItemTotal" />
             </div>
             <div class="col-md-2">
-                <h6 class="mt-4">Total: @Item.Total</h6>
+                <div class="text-center rounded rounded-3 mt-3 border border-3 border-primary">
+                    <h6 class="mt-4">Total: @Item.Total</h6>
+                </div>
             </div>
-            <div class="col-md-2">
-                <h6 class="mt-4">Net Amount: @Item.NetAmount</h6>
-            </div>
+            
         </div>
         <div class="mt-3">
             <h5>Taxes</h5>
@@ -40,6 +40,11 @@
             {
                 <InvoiceTaxComponent @bind-Tax="Item.Taxes[i]" TaxList="TaxList" OnRemove="RemoveTax"></InvoiceTaxComponent>
             }
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="text-center rounded rounded-3 w-25 m-2 border border-3 border-success">
+                    <h6 class="mt-4">Net Amount: @Item.NetAmount</h6>
+                </div>
+            </div>
             <div class="mt-3">
                 <button type="button" class="btn btn-danger" @onclick="RemoveThisItem">Remove Item</button>
             </div>

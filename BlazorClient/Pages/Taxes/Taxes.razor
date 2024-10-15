@@ -6,6 +6,11 @@
 <h3>Taxes</h3>
 
 <a href="/taxes/add" class="btn btn-primary">Add New Tax</a>
+
+<div class="dropdown mt-2">
+    <input type="text" @bind="searchTerm" @oninput="FilterTaxes" class="form-control" placeholder="Search by Name or Code" autocomplete="off" />
+</div>
+
 @if (isLoading)
 {
     <br />
@@ -24,33 +29,87 @@ else
             </tr>
         </thead>
         <tbody>
-            @if (taxes != null)
+            @if (filteredTaxes != null && filteredTaxes.Any())
             {
-                @foreach (var item in taxes)
+                @foreach (var tax in filteredTaxes)
                 {
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Code</td>
+                        <td>@tax.Name</td>
+                        <td>@tax.Code</td>
                         <td>
-                            <a href="/items/edit/@item.Id" class="btn btn-primary">Edit</a>
-                            <a @onclick="async () => await DeleteTax(item.Id)" class="btn btn-primary">Delete</a>
+                            <a href="/items/edit/@tax.Id" class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a @onclick="async () => await DeleteTax(tax.Id)" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </td>
                     </tr>
                 }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3">No items found</td>
+                </tr>
             }
         </tbody>
     </table>
 }
 @code {
+    private string searchTerm = string.Empty;
     private List<Tax> taxes = new();
     private bool isAddingTax = false;
     private bool isLoading = true;
+    private List<Tax> filteredTaxes = new List<Tax>();
+    private Tax selectedTax;
 
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
         taxes = await TaxService.GetTaxesAsync();
+        filteredTaxes = taxes;
         isLoading = false;
+    }
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString();
+        filteredTaxes = FilteredTaxes;
+    }
+    private List<Tax> FilteredTaxes
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return new List<Tax>();
+
+            return taxes.Where(item =>
+                item.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                item.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+    private void SelectTax(Tax tax)
+    {
+        selectedTax = tax;
+        searchTerm = tax.Name;
+        filteredTaxes.Clear();
+    }
+
+    private void FilterTaxes(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredTaxes = taxes;
+        }
+        else
+        {
+            filteredTaxes = taxes
+                .Where(tax => tax.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                               tax.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
     }
 
     private void NavigateToAddTax()

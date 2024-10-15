@@ -6,6 +6,9 @@
 <h3>Customers</h3>
 
 <a href="/customers/add" class="btn btn-primary">Add New Customer</a>
+<div class="dropdown mt-2">
+    <input type="text" @bind="searchTerm" @oninput="FilterCustomers" class="form-control" placeholder="Search by Name or Code" autocomplete="off" />
+</div>
 @if (isLoading)
 {
     <br />
@@ -24,35 +27,83 @@ else
             </tr>
         </thead>
         <tbody>
-            @if (customers != null)
+            @if (filteredCustomers != null && filteredCustomers.Any())
             {
-                @foreach (var item in customers)
+                @foreach (var customer in filteredCustomers)
                 {
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Code</td>
+                        <td>@customer.Name</td>
+                        <td>@customer.Code</td>
                         <td>
-                            <a href="/customers/edit/@item.Id" class="btn btn-primary">Edit</a>
-                            <a @onclick="async () => await DeleteCustomer(item.Id)" class="btn btn-primary">Delete</a>
+                            <a href="/items/edit/@customer.Id" class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a @onclick="async () => await DeleteCustomer(customer.Id)" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </td>
                     </tr>
                 }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3">No items found</td>
+                </tr>
             }
         </tbody>
     </table>
 }
 @code {
+    private string searchTerm = string.Empty;
     private List<Customer> customers = new();
     private bool isAddingcustomer = false;
     private bool isLoading = true;
+    private List<Customer> filteredCustomers = new List<Customer>();
+    private Customer selectedCustomer;
 
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
         customers = await CustomerService.GetCustomersAsync();
+        filteredCustomers = customers;
         isLoading = false;
     }
+    private List<Customer> FilteredTaxes
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return new List<Customer>();
 
+            return customers.Where(customer =>
+                customer.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                customer.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+    private void SelectCustomer(Customer customer)
+    {
+        selectedCustomer = customer;
+        searchTerm = customer.Name;
+        filteredCustomers.Clear();
+    }
+
+    private void FilterCustomers(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredCustomers = customers;
+        }
+        else
+        {
+            filteredCustomers = customers
+                .Where(customer => customer.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                               customer.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
     private void NavigateToAddCustomer()
     {
         Navigation.NavigateTo("/customers/add");

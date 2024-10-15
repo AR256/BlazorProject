@@ -37,13 +37,13 @@
         </div>
         <div class="col-md-4">
             <label class="form-label" for="date">Date Issued:</label>
-            <InputDate id="date" @bind-Value="invoice.DateTimeIssued" class="form-control" />
+            <input type="datetime-local" @bind="invoice.DateTimeIssued" class="form-control"/>
         </div>
     </div>
 
     <div class="mb-4">
         <h4>Items</h4>
-        <button type="button" class="btn btn-success mt-3" @onclick="AddNewItem">Add New Item</button>
+        <button type="button" class="btn btn-success mb-3" @onclick="AddNewItem">Add New Item</button>
         @for (int i = 0; i < invoice.InvoiceItems.Count; i++)
         {
             <InvoiceItemComponent @bind-Item="invoice.InvoiceItems[i]" OnRemove="RemoveItem"

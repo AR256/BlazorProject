@@ -16,16 +16,20 @@ else
     <div class="row">
         @foreach (var invoice in invoices)
         {
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">@invoice.Code</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">
+                    <div class="card-body bg-black bg-gradient rounded">
+                        <h5 class="card-title text-warning">@invoice.Code</h5>
+                        <h6 class="card-subtitle mb-2 text-light">
                             @(customers.Where(c => c.Id == invoice.CustomerId).FirstOrDefault()?.Name ?? "Unknown Customer")
                         </h6>
-                        <p class="card-text">Type: @invoice.Type</p>
-                        <button class="btn btn-warning" @onclick="() => EditInvoice(invoice.Id)">Edit</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteInvoice(invoice.Id)">Delete</button>
+                        <p class="card-text text-info">Type: @invoice.Type</p>
+                        <button class="btn btn-outline-success" @onclick="() => EditInvoice(invoice.Id)">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-outline-danger" @onclick="() => DeleteInvoice(invoice.Id)">
+                            <i class="bi bi-trash"></i>
+                            </button>
                     </div>
                 </div>
             </div>

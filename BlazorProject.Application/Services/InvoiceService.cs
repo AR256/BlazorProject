@@ -105,9 +105,13 @@ namespace BlazorProject.Application.Services
             existingInvoice.Code = invoiceDto.Code;
             existingInvoice.NetAmount = invoiceDto.NetAmount;
             existingInvoice.Type = invoiceDto.Type;
-            foreach(var item in existingInvoice.InvoiceItems)
+            foreach (var existingItem in existingInvoice.InvoiceItems.ToList())
             {
-                _invoiceRepository.RemoveInvoiceItem(item);
+                foreach (var existingTax in existingItem.InvoiceItemTaxes.ToList())
+                {
+                    _invoiceRepository.RemoveInvoiceItemTax(existingTax);
+                }
+                _invoiceRepository.RemoveInvoiceItem(existingItem);
             }
             foreach (var item in invoiceDto.InvoiceItems)
             {
@@ -118,7 +122,8 @@ namespace BlazorProject.Application.Services
                     ItemId = item.ItemId,
                     Amount = item.Amount,
                     Quantity = item.Quantity,
-                    InvoiceId = item.InvoiceId,
+                    InvoiceId = existingInvoice.Id,
+                    NetAmount = existingInvoice.NetAmount,
                     InvoiceItemTaxes = item.Taxes.Select(tax => new InvoiceItemTax
                     {
                         Id = Guid.NewGuid(),

@@ -36,7 +36,7 @@ namespace BlazorProject.Application.Services
             var invoiceDto = new InvoiceDto
             {
                 Id = invoice.Id,
-                Type = invoice.Type,
+                InvoiceTypeId = invoice.InvoiceTypeId,
                 Code = invoice.Code,
                 CustomerId = invoice.CustomerId,
                 DateTimeIssued = invoice.DateTimeIssued,
@@ -73,7 +73,7 @@ namespace BlazorProject.Application.Services
             var invoice = new Invoice
             {
                 Id = newInvoiceId,
-                Type = invoiceDto.Type,
+                InvoiceTypeId = invoiceDto.InvoiceTypeId,
                 Code = invoiceDto.Code,
                 CustomerId = invoiceDto.CustomerId,
                 DateTimeIssued = invoiceDto.DateTimeIssued,
@@ -104,7 +104,7 @@ namespace BlazorProject.Application.Services
             existingInvoice.CustomerId = invoiceDto.CustomerId;
             existingInvoice.Code = invoiceDto.Code;
             existingInvoice.NetAmount = invoiceDto.NetAmount;
-            existingInvoice.Type = invoiceDto.Type;
+            existingInvoice.InvoiceTypeId = invoiceDto.InvoiceTypeId;
             foreach (var existingItem in existingInvoice.InvoiceItems.ToList())
             {
                 foreach (var existingTax in existingItem.InvoiceItemTaxes.ToList())

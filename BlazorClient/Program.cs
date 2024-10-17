@@ -12,5 +12,6 @@ builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<TaxService>();
 builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<InvoiceTypeService>();
 
 await builder.Build().RunAsync();

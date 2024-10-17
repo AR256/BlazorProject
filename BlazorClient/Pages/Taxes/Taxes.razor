@@ -2,7 +2,7 @@
 @inject TaxService TaxService
 @inject NavigationManager Navigation
 
-
+<PageTitle>Taxes</PageTitle>
 <h3>Taxes</h3>
 
 <a href="/taxes/add" class="btn btn-primary">Add New Tax</a>
@@ -37,7 +37,7 @@ else
                         <td>@tax.Name</td>
                         <td>@tax.Code</td>
                         <td>
-                            <a href="/items/edit/@tax.Id" class="btn btn-outline-dark btn-sm">
+                            <a href="/taxes/edit/@tax.Id" class="btn btn-outline-dark btn-sm">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <a @onclick="async () => await DeleteTax(tax.Id)" class="btn btn-outline-danger btn-sm">
@@ -46,7 +46,7 @@ else
                         </td>
                     </tr>
                 }
-            }
+            }   
             else
             {
                 <tr>

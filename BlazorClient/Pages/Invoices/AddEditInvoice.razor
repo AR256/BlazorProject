@@ -4,64 +4,66 @@
 @inject TaxService TaxService
 @inject CustomerService CustomerService
 @inject ItemService ItemService
+@inject InvoiceTypeService InvoiceTypeService
 @inject NavigationManager NavigationManager
-
-<h3 class="text-center mb-4">@((Id.HasValue ? "Edit" : "Create") + " Invoice")</h3>
-
-<EditForm Model="invoice" OnValidSubmit="SaveInvoice">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="type" class="form-label">Type:</label>
-            <InputSelect id="type" @bind-Value="invoice.Type" class="form-select">
-                @foreach (var type in Enum.GetValues(typeof(InvoiceType)).Cast<InvoiceType>())
-                {
-                    <option value="@((int)type)">@type.ToString()</option>
-                }
-            </InputSelect>
+<div class="p-2 bg-light rounded rounded-3 border border-dark border-3">
+    <h3 class="text-center mb-4">@((Id.HasValue ? "Edit" : "Create") + " Invoice")</h3>
+    <EditForm Model="invoice" OnValidSubmit="SaveInvoice">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label for="type" class="form-label">Type:</label>
+                <InputSelect id="item-name" class="form-select border border-1 border-dark" @bind-Value="invoice.InvoiceTypeId">
+                    <option>--Select A Type--</option>
+                    @foreach (var invoiceType in invoiceTypes)
+                    {
+                        <option value="@invoiceType.Id">@invoiceType.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6">
+                <label for="code" class="form-label">Invoice Code:</label>
+                <InputText id="code" @bind-Value="invoice.Code" class="form-control  border border-1 border-dark" disabled />
+            </div>
+            <div class="col-md-6">
+                <label for="customer" class="form-label">Customer:</label>
+                <InputSelect id="item-name" class="form-select border border-1 border-dark" @bind-Value="invoice.CustomerId">
+                    <option>--Select A Customer--</option>
+                    @foreach (var customer in customers)
+                    {
+                        <option value="@customer.Id">@customer.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="date">Date Issued:</label>
+                <input type="datetime-local" @bind="invoice.DateTimeIssued" class="form-control border border-1 border-dark" />
+            </div>
         </div>
-        <div class="col-md-4">
-            <label for="code" class="form-label">Invoice Code:</label>
-            <InputText id="code" @bind-Value="invoice.Code" class="form-control" />
-        </div>
-        <div class="col-md-4">
-            <label for="customer" class="form-label">Customer:</label>
-            <CustomSelectInput @bind-Value="invoice.CustomerId">
-                <option value="">--Select Customer--</option>
-                @foreach (var customer in customers)
-                {
-                    <option value="@customer.Id.ToString()">@customer.Name</option>
-                }
-            </CustomSelectInput>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label" for="date">Date Issued:</label>
-            <input type="datetime-local" @bind="invoice.DateTimeIssued" class="form-control"/>
-        </div>
-    </div>
 
-    <div class="mb-4">
-        <h4>Items</h4>
-        <button type="button" class="btn btn-success mb-3" @onclick="AddNewItem">Add New Item</button>
-        @for (int i = 0; i < invoice.InvoiceItems.Count; i++)
-        {
-            <InvoiceItemComponent @bind-Item="invoice.InvoiceItems[i]" OnRemove="RemoveItem"
-                                  ItemsList="items"
-                                  TaxList="taxes" />
-        }
-    </div>
+        <div class="mb-4">
+            <h4>Items</h4>
+            <button type="button" class="btn btn-dark mb-3" @onclick="AddNewItem">Add Item</button>
+            @for (int i = 0; i < invoice.InvoiceItems.Count; i++)
+            {
+                <InvoiceItemComponent @bind-Item="invoice.InvoiceItems[i]" OnRemove="RemoveItem"
+                                      ItemsList="items"
+                                      TaxList="taxes" />
+            }
+        </div>
 
-    <div class="text-end">
-        <label>Total Net Amount: </label>
-        <span>@invoice.NetAmount</span>
-    </div>
+        <div class="text-dark me-3 p-3 bg-warning border border-3 border-dark rounded rounded-3 fw-bolder w-100 text-center d-flex justify-content-center">
+            <label>Total Net Amount: </label>
+            <span>@invoice.NetAmount</span>
+        </div>
 
-    <div class="d-flex justify-content-between">
-        <button type="submit" class="btn btn-primary">Submit Invoice</button>
-        <button type="button" class="btn btn-secondary" @onclick="GoBack">Back</button>
-    </div>
-</EditForm>
+        <div class="d-flex justify-content-evenly mt-3">
+            <button type="submit" class="btn btn-dark">Submit Invoice</button>
+            <button type="button" class="btn btn-dark" @onclick="GoBack">Back</button>
+        </div>
+    </EditForm>
+</div>
 
 @code {
     [Parameter]
@@ -70,6 +72,7 @@
     private List<Customer> customers = new List<Customer>();
     private List<Item> items = new List<Item>();
     private List<Tax> taxes = new List<Tax>();
+    private List<InvoiceType> invoiceTypes = new List<InvoiceType>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,11 +85,17 @@
         {
             // If no Id, create a new invoice for adding
             invoice = new Invoice();
+            invoice.DateTimeIssued = DateTime.Now;
         }
         // Load customers, items, and taxes from the services
         customers = await CustomerService.GetCustomersAsync();
         items = await ItemService.GetItemsAsync();
         taxes = await TaxService.GetTaxesAsync();
+        invoiceTypes = await InvoiceTypeService.GetInvoiceTypesAsync();
+    }
+    private void GenerateInvoiceCode()
+    {
+        invoice.Code = $"INV-{DateTime.Now:yyyyMMdd}-{invoice.CustomerId}";
     }
 
     private void AddNewItem()
@@ -101,6 +110,7 @@
 
     private async Task SaveInvoice()
     {
+        GenerateInvoiceCode();
         if (Id.HasValue)
         {
             // Update existing invoice

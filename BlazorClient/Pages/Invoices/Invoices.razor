@@ -1,8 +1,10 @@
 ﻿@page "/invoices"
 @inject InvoiceService InvoiceService
 @inject CustomerService CustomerService
+@inject InvoiceTypeService InvoiceTypeService
 @inject NavigationManager NavigationManager
 
+<PageTitle>Invoices</PageTitle>
 <h3>Invoices</h3>
 
 <button class="btn btn-primary mb-3" @onclick="AddNewInvoice">Add Invoice</button>
@@ -23,7 +25,7 @@ else
                         <h6 class="card-subtitle mb-2 text-light">
                             @(customers.Where(c => c.Id == invoice.CustomerId).FirstOrDefault()?.Name ?? "Unknown Customer")
                         </h6>
-                        <p class="card-text text-info">Type: @invoice.Type</p>
+                        <p class="card-text text-info">Type: @(invoiceTypes.Where(c => c.Id == invoice.InvoiceTypeId).FirstOrDefault()?.Name ?? "Unknown Type")</p>
                         <button class="btn btn-outline-success" @onclick="() => EditInvoice(invoice.Id)">
                             <i class="bi bi-pencil-square"></i>
                         </button>
@@ -40,11 +42,13 @@ else
 @code {
     private List<Invoice> invoices;
     private List<Customer> customers;
+    private List<InvoiceType> invoiceTypes;
 
     protected override async Task OnInitializedAsync()
     {
         invoices = await InvoiceService.GetAllInvoicesAsync();
         customers = await CustomerService.GetCustomersAsync();
+        invoiceTypes = await InvoiceTypeService.GetInvoiceTypesAsync();
     }
 
     private void AddNewInvoice()

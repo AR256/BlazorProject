@@ -13,24 +13,19 @@ namespace BlazorProject.Domain.Entities
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public InvoiceType Type { get; set; }
-        [Required]
         public string Code { get; set; }
         [ForeignKey(nameof(Customer))]
         [Required]
         public Guid CustomerId { get; set; }
+        [Required]
+        public Guid InvoiceTypeId { get; set; }
         [Required]
         public DateTime DateTimeIssued { get; set; }
         [Required]
         public decimal NetAmount { get; set; }
         public ICollection<InvoiceItem> InvoiceItems { get; set; } = new HashSet<InvoiceItem>();
         public Customer Customer { get; set; }
+        public InvoiceType NInvoiceType { get; set; }
     }
-    public enum InvoiceType
-    {
-        Invoice,
-        Debt,
-        Credit
-    };
 
 }

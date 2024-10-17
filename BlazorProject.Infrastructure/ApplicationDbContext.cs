@@ -20,6 +20,7 @@ namespace BlazorProject.Infrastructure
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<InvoiceItemTax> InvoiceItemTaxes { get; set; }
+        public DbSet<InvoiceType> InvoiceTypes { get; set; }
 
     }
 }

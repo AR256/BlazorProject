@@ -14,6 +14,7 @@ builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ITaxRepository, TaxRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IInvoiceTypeRepository, InvoiceTypeRepository>();
 builder.Services.AddScoped<InvoiceService>();
 
 builder.Services.AddControllers();

@@ -1,32 +1,32 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar bg-success">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">BlazorClient</a>
+        <a class="navbar-brand text-black fw-bolder" href="">E-Invoice</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass nav-scrollable bg-black bg-gradient" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="invoices" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Invoices
+                <span class="bi bi-receipt fs-2" aria-hidden="true" style="transform: translate(-10px, -10px);"></span> Invoices
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="items">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Items
+                <span class="bi bi-box-seam fs-2" aria-hidden="true" style="transform: translate(-10px, -10px);"></span> Items
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="customers">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Customers
+                <span class="bi bi-file-person fs-2" aria-hidden="true" style="transform: translate(-10px, -10px);"></span> Customers
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="taxes">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Taxes
+                <span class="bi bi-percent fs-2" aria-hidden="true" style="transform: translate(-10px, -10px);"></span> Taxes
             </NavLink>
         </div>
     </nav>

@@ -6,7 +6,7 @@
 @inject ItemService ItemService
 @inject InvoiceTypeService InvoiceTypeService
 @inject NavigationManager NavigationManager
-<div class="p-2 bg-light rounded rounded-3 border border-dark border-3">
+<div class="p-2 bg-dark text-light rounded-3 border border-dark border-3">
     <h3 class="text-center mb-4">@((Id.HasValue ? "Edit" : "Create") + " Invoice")</h3>
     <EditForm Model="invoice" OnValidSubmit="SaveInvoice">
         <DataAnnotationsValidator />
@@ -38,29 +38,28 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label" for="date">Date Issued:</label>
-                <input type="datetime-local" @bind="invoice.DateTimeIssued" class="form-control border border-1 border-dark" />
+                <input type="datetime-local" @bind="invoice.DateTimeIssued" class="form-control border border-1 border-dark" disabled />
             </div>
         </div>
 
-        <div class="mb-4">
-            <h4>Items</h4>
-            <button type="button" class="btn btn-dark mb-3" @onclick="AddNewItem">Add Item</button>
-            @for (int i = 0; i < invoice.InvoiceItems.Count; i++)
-            {
-                <InvoiceItemComponent @bind-Item="invoice.InvoiceItems[i]" OnRemove="RemoveItem"
-                                      ItemsList="items"
-                                      TaxList="taxes" />
-            }
+        <button type="button" class="btn btn-light mb-3" @onclick="AddNewItem">Add Item</button>
+        <div class="mb-4 rounded-3 border border-dark border-3">
+            <InvoiceItemComponent Items="invoice.InvoiceItems"
+            OnRemove="RemoveItem"
+            ItemsList="items"
+            TaxList="taxes"
+            ItemsChanged="RecalculateInvoiceNetAmount" />
+            <div class="text-dark me-3 p-1 bg-success fw-bolder w-100 text-center d-flex justify-content-start">
+                <label class="text-white">Total Net Amount: </label>
+                <span class="bg-black text-light"> @invoice.NetAmount.ToString("C")</span>
+            </div>
         </div>
 
-        <div class="text-dark me-3 p-3 bg-warning border border-3 border-dark rounded rounded-3 fw-bolder w-100 text-center d-flex justify-content-center">
-            <label>Total Net Amount: </label>
-            <span>@invoice.NetAmount</span>
-        </div>
+        
 
-        <div class="d-flex justify-content-evenly mt-3">
-            <button type="submit" class="btn btn-dark">Submit Invoice</button>
-            <button type="button" class="btn btn-dark" @onclick="GoBack">Back</button>
+        <div class="d-flex justify-content-start gap-2 mt-3">
+            <button type="submit" class="btn btn-light">Submit Invoice</button>
+            <button type="button" class="btn btn-light" @onclick="GoBack">Back</button>
         </div>
     </EditForm>
 </div>
@@ -78,47 +77,50 @@
     {
         if (Id.HasValue)
         {
-            // If there is an Id, fetch the existing invoice for editing
             invoice = await InvoiceService.GetInvoiceyIdAsync(Id.Value);
         }
         else
         {
-            // If no Id, create a new invoice for adding
             invoice = new Invoice();
-            invoice.DateTimeIssued = DateTime.Now;
         }
-        // Load customers, items, and taxes from the services
         customers = await CustomerService.GetCustomersAsync();
         items = await ItemService.GetItemsAsync();
         taxes = await TaxService.GetTaxesAsync();
         invoiceTypes = await InvoiceTypeService.GetInvoiceTypesAsync();
     }
-    private void GenerateInvoiceCode()
+    private void RecalculateInvoiceNetAmount()
     {
-        invoice.Code = $"INV-{DateTime.Now:yyyyMMdd}-{invoice.CustomerId}";
+        StateHasChanged();
+    }
+    private async Task GenerateInvoiceCode()
+    {
+        var invoices = await InvoiceService.GetAllInvoicesAsync();
+        invoice.Code = $"INV-{invoice.DateTimeIssued:yyyyMMddHHmmss}{(invoices.Count + 1).ToString("D2")}";
     }
 
     private void AddNewItem()
     {
-        invoice.InvoiceItems.Add(new InvoiceItem());
+        invoice.InvoiceItems.Add(new InvoiceItem() { CreationDate = DateTime.Now, ModificationDate = DateTime.Now });
+        StateHasChanged();
     }
 
     private void RemoveItem(InvoiceItem item)
     {
         invoice.InvoiceItems.Remove(item);
+        StateHasChanged();
     }
 
     private async Task SaveInvoice()
     {
-        GenerateInvoiceCode();
         if (Id.HasValue)
         {
-            // Update existing invoice
+            invoice.ModificationDate = DateTime.Now;
             await InvoiceService.UpdateInvoiceAsync(invoice);
         }
         else
         {
-            // Add new invoice
+            invoice.DateTimeIssued = DateTime.Now;
+            await GenerateInvoiceCode();
             await InvoiceService.AddInvoiceAsync(invoice);
         }
         NavigationManager.NavigateTo("/invoices");

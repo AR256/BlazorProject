@@ -18,13 +18,13 @@ namespace BlazorClient.Services
         {
             return await _httpClient.GetFromJsonAsync<Tax>($"api/Tax/{id}");
         }
-        public async Task AddTaxAsync(Tax newTax)
+        public async Task<HttpResponseMessage> AddTaxAsync(Tax newTax)
         {
-            await _httpClient.PostAsJsonAsync("api/Tax", newTax);
+            return await _httpClient.PostAsJsonAsync("api/Tax", newTax);
         }
-        public async Task UpdateTaxAsync(Tax updatedTax)
+        public async Task<HttpResponseMessage> UpdateTaxAsync(Tax updatedTax)
         {
-            await _httpClient.PutAsJsonAsync($"api/Tax/{updatedTax.Id}", updatedTax);
+            return await _httpClient.PutAsJsonAsync($"api/Tax/{updatedTax.Id}", updatedTax);
         }
         public async Task DeleteTaxAsync(Guid id)
         {

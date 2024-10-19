@@ -12,6 +12,8 @@ namespace BlazorClient.Models
         public decimal Amount { get; set; }
         public decimal Total => Quantity * Amount;
         public decimal NetAmount => Total + Taxes.Sum(i => i.Amount);
+        public DateTime CreationDate { get; set; }
+        public DateTime ModificationDate { get; set; }
         public List<InvoiceItemTax> Taxes { get; set; } = new();
     }
 }

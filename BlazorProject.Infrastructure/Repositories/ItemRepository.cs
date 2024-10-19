@@ -1,13 +1,8 @@
-﻿using Azure.Core;
+﻿using BlazorProject.Application.Exceptions;
 using BlazorProject.Application.Exceptions.BlazorProject.Application.Exceptions;
 using BlazorProject.Domain.Entities;
 using BlazorProject.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazorProject.Infrastructure.Repositories
 {
@@ -20,6 +15,12 @@ namespace BlazorProject.Infrastructure.Repositories
         }
         public async Task AddAsync(Item item)
         {
+            var existingItem = await _context.Items.FirstOrDefaultAsync(i => i.Code == item.Code);
+
+            if (existingItem != null)
+            {
+                throw new DuplicateEntityException($"An item with the code {item.Code} already exists.");
+            }
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
         }
@@ -50,6 +51,12 @@ namespace BlazorProject.Infrastructure.Repositories
 
         public async Task UpdateAsync(Item item)
         {
+            var existingItem = await _context.Items.FirstOrDefaultAsync(i => i.Code == item.Code && i.Id != item.Id);
+
+            if (existingItem != null)
+            {
+                throw new DuplicateEntityException($"An item with the code {item.Code} already exists.");
+            }
             _context.Items.Update(item);
             await _context.SaveChangesAsync();
         }

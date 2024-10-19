@@ -5,7 +5,7 @@
 <PageTitle>Items</PageTitle>
 <h3>Items</h3>
 
-<a href="/items/add" class="btn btn-primary mb-2">Add New Item</a>
+<a href="/items/add" class="btn btn-success mb-2">Add New Item</a>
 <div class="dropdown">
     <input type="text" @bind="searchTerm" @oninput="FilterItems" class="form-control" placeholder="Search by Name or Code" autocomplete="off" />
 </div>
@@ -24,8 +24,8 @@ else
     <table class="table table-hover mt-2">
         <thead>
             <tr>
-                <th>Name</th>
                 <th>Code</th>
+                <th>Name</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -35,8 +35,8 @@ else
                 @foreach (var item in filteredItems)
                 {
                     <tr>
-                        <td>@item.Name</td>
                         <td>@item.Code</td>
+                        <td>@item.Name</td>
                         <td>
                             <a href="/items/edit/@item.Id" class="btn btn-outline-dark btn-sm">
                                 <i class="bi bi-pencil-square"></i>
@@ -60,7 +60,6 @@ else
 @code {
     private string searchTerm = string.Empty;
     private List<Item> items = new();
-    private bool isAddingItem = false;
     private bool isLoading = true;
     private List<Item> filteredItems = new List<Item>();
     private Item selectedItem;
@@ -112,10 +111,15 @@ else
     {
         await ItemService.DeleteItemAsync(id);
         items = await ItemService.GetItemsAsync();
+        FilterItems();
+        StateHasChanged();
     }
-    private void FilterItems(ChangeEventArgs e)
+    private void FilterItems(ChangeEventArgs? e = null)
     {
-        searchTerm = e.Value?.ToString();
+        if (e != null)
+        {
+            searchTerm = e.Value?.ToString();
+        }
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             filteredItems = items;

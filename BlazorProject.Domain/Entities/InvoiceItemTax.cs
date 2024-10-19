@@ -20,6 +20,8 @@ namespace BlazorProject.Domain.Entities
         public Guid TaxId { get; set; }
         [Required]
         public decimal TaxAmount { get; set; }
+        public DateTime CreationDate { get; set; }
+        public DateTime ModificationDate { get; set; }
         public InvoiceItem InvoiceItem { get; set; }
 
         public Tax Tax { get; set; }

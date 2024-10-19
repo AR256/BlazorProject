@@ -5,7 +5,7 @@
 <PageTitle>Taxes</PageTitle>
 <h3>Taxes</h3>
 
-<a href="/taxes/add" class="btn btn-primary">Add New Tax</a>
+<a href="/taxes/add" class="btn btn-success">Add New Tax</a>
 
 <div class="dropdown mt-2">
     <input type="text" @bind="searchTerm" @oninput="FilterTaxes" class="form-control" placeholder="Search by Name or Code" autocomplete="off" />
@@ -23,8 +23,8 @@ else
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>Name</th>
                 <th>Code</th>
+                <th>Name</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -34,8 +34,8 @@ else
                 @foreach (var tax in filteredTaxes)
                 {
                     <tr>
-                        <td>@tax.Name</td>
                         <td>@tax.Code</td>
+                        <td>@tax.Name</td>
                         <td>
                             <a href="/taxes/edit/@tax.Id" class="btn btn-outline-dark btn-sm">
                                 <i class="bi bi-pencil-square"></i>
@@ -59,7 +59,6 @@ else
 @code {
     private string searchTerm = string.Empty;
     private List<Tax> taxes = new();
-    private bool isAddingTax = false;
     private bool isLoading = true;
     private List<Tax> filteredTaxes = new List<Tax>();
     private Tax selectedTax;
@@ -96,9 +95,12 @@ else
         filteredTaxes.Clear();
     }
 
-    private void FilterTaxes(ChangeEventArgs e)
+    private void FilterTaxes(ChangeEventArgs? e = null)
     {
-        searchTerm = e.Value?.ToString();
+        if (e != null)
+        {
+            searchTerm = e.Value?.ToString();
+        }
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             filteredTaxes = taxes;
@@ -126,5 +128,7 @@ else
     {
         await TaxService.DeleteTaxAsync(id);
         taxes = await TaxService.GetTaxesAsync();
+        FilterTaxes();
+        StateHasChanged();
     }
 }

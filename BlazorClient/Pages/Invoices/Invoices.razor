@@ -7,37 +7,44 @@
 <PageTitle>Invoices</PageTitle>
 <h3>Invoices</h3>
 
-<button class="btn btn-primary mb-3" @onclick="AddNewInvoice">Add Invoice</button>
-
-@if (invoices == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <div class="row">
-        @foreach (var invoice in invoices)
+<button class="btn btn-success mb-3" @onclick="AddNewInvoice">Add Invoice</button>
+<table class="table table-dark table-striped-columns">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Customer</th>
+            <th>Date Issued</th>
+            <th>Net Amount</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (invoices == null)
         {
-            <div class="col-md-3 mb-3">
-                <div class="card">
-                    <div class="card-body bg-black bg-gradient rounded">
-                        <h5 class="card-title text-warning">@invoice.Code</h5>
-                        <h6 class="card-subtitle mb-2 text-light">
-                            @(customers.Where(c => c.Id == invoice.CustomerId).FirstOrDefault()?.Name ?? "Unknown Customer")
-                        </h6>
-                        <p class="card-text text-info">Type: @(invoiceTypes.Where(c => c.Id == invoice.InvoiceTypeId).FirstOrDefault()?.Name ?? "Unknown Type")</p>
-                        <button class="btn btn-outline-success" @onclick="() => EditInvoice(invoice.Id)">
+            <tr>Loading...</tr>
+        }
+        else
+        {
+            @foreach (var invoice in invoices.OrderByDescending(i => i.DateTimeIssued))
+            {
+                <tr>
+                    <td>@invoice.Code</td>
+                    <td>@customers.Find(i => i.Id ==invoice.CustomerId).Name</td>
+                    <td>@invoice.DateTimeIssued</td>
+                    <td>@invoice.NetAmount.ToString("C")</td>
+                    <td>
+                        <button class="btn btn-outline-light" @onclick="() => EditInvoice(invoice.Id)">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         <button class="btn btn-outline-danger" @onclick="() => DeleteInvoice(invoice.Id)">
                             <i class="bi bi-trash"></i>
-                            </button>
-                    </div>
-                </div>
-            </div>
+                        </button>
+                    </td>
+                </tr>
+            }
         }
-    </div>
-}
+    </tbody>
+</table>
 
 @code {
     private List<Invoice> invoices;

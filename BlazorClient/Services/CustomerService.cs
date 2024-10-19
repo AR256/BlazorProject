@@ -18,13 +18,13 @@ namespace BlazorClient.Services
         {
             return await _httpClient.GetFromJsonAsync<Customer>($"api/Customer/{id}");
         }
-        public async Task AddCustomerAsync(Customer newCustomer)
+        public async Task<HttpResponseMessage> AddCustomerAsync(Customer newCustomer)
         {
-            await _httpClient.PostAsJsonAsync("api/Customer", newCustomer);
+            return await _httpClient.PostAsJsonAsync("api/Customer", newCustomer);
         }
-        public async Task UpdateCustomerAsync(Customer updatedCustomer)
+        public async Task<HttpResponseMessage> UpdateCustomerAsync(Customer updatedCustomer)
         {
-            await _httpClient.PutAsJsonAsync($"api/Customer/{updatedCustomer.Id}", updatedCustomer);
+            return await _httpClient.PutAsJsonAsync($"api/Customer/{updatedCustomer.Id}", updatedCustomer);
         }
         public async Task DeleteCustomerAsync(Guid id)
         {

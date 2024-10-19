@@ -1,59 +1,56 @@
-﻿<div class="row g-3 align-items-end my-2 border border-3 border-warning rounded rounded-3">
-    <div class="col-md-6 my-2">
-        <label for="taxName">Tax Name:</label>
-        <InputSelect class="form-select" @bind-Value="Tax.TaxId" @oninput="OnTaxSearchChanged" >
-            @foreach (var availableTax in TaxList)
-            {
-                <option value="@availableTax.Id">@availableTax.Name</option>
-            }
-            </InputSelect>
-        <ul>
-            @foreach (var tax in filteredTaxes)
-            {
-                <li @onclick="() => SelectTax(tax)">@tax.Name</li>
-            }
-        </ul>
+﻿
+<button type="button" class="btn btn-dark mb-3" @onclick="AddNewTax">Add Tax</button>
+@foreach(var invoiceTax in InvoiceTaxes.OrderBy(t => t.CreationDate))
+{
+    <div class="row g-3 align-items-end my-2 text-light bg-dark border border-3 border-info rounded-3">
+        <div class="col-md-6 my-4">
+            <label for="taxName" class="form-label">Tax Name:</label>
+            <InputSelect class="form-select" @bind-Value="invoiceTax.TaxId" @onchange="NotifyTaxChange">
+                <option>--Select A Tax--</option>
+                @foreach (var availableTax in InvoiceTaxList)
+                {
+                    <option value="@availableTax.Id">@availableTax.Name</option>
+                }
+                </InputSelect>
+        </div>
+        <div class="col-md-4 pb-4">
+            <label for="taxAmount" class="form-label">Tax Amount:</label>
+            <InputNumber id="taxAmount" class="form-control" @bind-Value="invoiceTax.Amount" @oninput="NotifyTaxChange" />
+        </div>
+        <div class="col-md-2 pb-4">
+            <a @onclick="() => RemoveThisTax(invoiceTax.Id)" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
+        <ValidationMessage For="@(() => invoiceTax.TaxId)" />
+        <ValidationMessage For="@(() => invoiceTax.Amount)" />
+
     </div>
-    <div class="col-md-4 pb-4">
-        <label for="taxAmount" class="form-label">Tax Amount:</label>
-        <InputNumber id="taxAmount" class="form-control" @bind-Value="Tax.Amount" @oninput="RecalculateTax" />
-    </div>
-    <div class="col-md-2 pb-4">
-        <button class="btn btn-danger" type="button" @onclick="RemoveThisTax">Remove Tax</button>
-    </div>
-</div>
+}
 
 @code {
     [Parameter]
-    public InvoiceItemTax Tax { get; set; }
+    public List<InvoiceItemTax> InvoiceTaxes { get; set; }
     [Parameter]
-    public List<Tax> TaxList { get; set; }
+    public List<Tax> InvoiceTaxList { get; set; }
     [Parameter] 
-    public EventCallback<InvoiceItemTax> OnRemove { get; set; }
+    public EventCallback<InvoiceItemTax> OnRemoveTax { get; set; }
     [Parameter]
-    public EventCallback<InvoiceItemTax> TaxChanged { get; set; }
-
-    private string taxSearchTerm = "";
-    private List<Tax> filteredTaxes = new List<Tax>();
-    private void OnTaxSearchChanged(ChangeEventArgs e)
+    public EventCallback<List<InvoiceItemTax>> InvoiceTaxesChanged { get; set; }
+    private async Task RemoveThisTax(Guid id)
     {
-        taxSearchTerm = e.Value.ToString();
-        filteredTaxes = TaxList
-            .Where(t => t.Name.Contains(taxSearchTerm, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        var invoiceTax = InvoiceTaxes.Find(t => t.Id == id);
+        InvoiceTaxes.Remove(invoiceTax);
+        await OnRemoveTax.InvokeAsync(invoiceTax);
+        await InvoiceTaxesChanged.InvokeAsync();
     }
-    private void SelectTax(Tax tax)
+    private async Task AddNewTax()
     {
-        Tax.Id = tax.Id;
-        filteredTaxes.Clear(); // Hide suggestions list
+        InvoiceTaxes.Add(new InvoiceItemTax() { CreationDate = DateTime.Now, ModificationDate = DateTime.Now });
+        await InvoiceTaxesChanged.InvokeAsync();
     }
-    private async Task RemoveThisTax()
+    private void NotifyTaxChange()
     {
-        await OnRemove.InvokeAsync(Tax);
+        InvoiceTaxesChanged.InvokeAsync();
     }
-    private void RecalculateTax()
-    {
-        StateHasChanged();
-    }
-
 }

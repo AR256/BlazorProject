@@ -8,6 +8,10 @@
 <EditForm method="post" FormName="EditOrAddNewTaxForm" Model="tax" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger">@ErrorMessage</div>
+    }
 
     <div>
         <label for="name" class="form-label">Name:</label>
@@ -30,6 +34,7 @@
     [SupplyParameterFromForm]
     public Tax tax { get; set; } = new();
     private bool isEdit = false;
+    private string ErrorMessage;
     protected override async Task OnInitializedAsync()
     {
         isEdit = Id.HasValue;
@@ -42,19 +47,43 @@
     }
     private async Task HandleValidSubmit()
     {
-        if (isEdit)
+        try
         {
-            // Edit existing Tax
-            await TaxService.UpdateTaxAsync(tax);
+            if (isEdit)
+            {
+                var response = await TaxService.UpdateTaxAsync(tax);
+                if (response.IsSuccessStatusCode)
+                {
+                    var successMessage = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                    ErrorMessage = successMessage.Message;
+                    Navigation.NavigateTo("/taxes");
+                }
+                else
+                {
+                    var result = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                    ErrorMessage = result.Message;
+                }
+            }
+            else
+            {
+                var response = await TaxService.AddTaxAsync(tax);
+                if (response.IsSuccessStatusCode)
+                {
+                    var successMessage = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                    ErrorMessage = successMessage.Message;
+                    Navigation.NavigateTo("/taxes");
+                }
+                else
+                {
+                    var result = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                    ErrorMessage = result.Message;
+                }
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Add new Tax
-            await TaxService.AddTaxAsync(tax);
+            ErrorMessage = ex.Message;
         }
-
-        // Navigate back to Taxes list after saving
-        Navigation.NavigateTo("/taxes");
     }
 
 }

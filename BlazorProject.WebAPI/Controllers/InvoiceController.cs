@@ -1,11 +1,6 @@
 ﻿using BlazorProject.Application.DTOS;
-using BlazorProject.Application.Exceptions.BlazorProject.Application.Exceptions;
 using BlazorProject.Application.Services;
-using BlazorProject.Domain.Entities;
-using BlazorProject.Domain.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlazorProject.WebAPI.Controllers
 {
@@ -38,10 +33,10 @@ namespace BlazorProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateInvoice([FromBody] InvoiceDto invoiceDto)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest(ModelState);
-            //}
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             await _invoiceService.CreateInvoice(invoiceDto);
             return Ok();
         }

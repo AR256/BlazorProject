@@ -1,94 +1,113 @@
 ﻿
-<div class="card mb-3 border border-dark border-3">
-    <div class="card-body bg-dark text-light rounded rounded-3">
-        <div class="row g-3">
-            <div class="col-md-6">    
-                <label for="itemName" class="form-label">Item Name:</label>
-                <InputSelect id="item-name" class="form-select" @bind-Value="Item.ItemId">
-                    @foreach (var availableItem in ItemsList)
-                    {
-                        <option value="@availableItem.Id">@availableItem.Name</option>
-                    }
-                </InputSelect>
-                <ul>
-                    @for (int i = 0; i < filteredItems.Count; i++)
-                    {
-                        <li @onclick="() => SelectItem(filteredItems[i])">@filteredItems[i].Name</li>
-                    }
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <label for="quantity" class="form-label">Quantity:</label>
-                <InputNumber id="quantity" class="form-control" @bind-Value="Item.Quantity" @oninput="RecalculateItemTotal" />
-            </div>
-            <div class="col-md-2">
-                <label for="amountSold" class="form-label">Amount:</label>
-                <InputNumber id="amountSold" class="form-control" @bind-Value="Item.Amount" @oninput="RecalculateItemTotal" />
-            </div>
-            <div class="col-md-2">
-                <div class="text-center rounded rounded-3 mt-3 border border-3 border-warning">
-                    <h6 class="mt-4">Total: @Item.Total</h6>
-                </div>
-            </div>
-            
-        </div>
-        <div class="mt-3">
-            <h5>Taxes</h5>
-            <button type="button" class="btn btn-light" @onclick="AddNewTax">Add Tax</button>
-
-            @for (int i = 0; i < Item.Taxes.Count; i++)
+<div>
+    <h4 class="bg-success text-white ps-2 mb-0">Items</h4>
+    <table class="table table-bordered table-hover m-0 bg-dark text-light border-success">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Total</th>
+                <th>Net Amount</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Items.OrderBy(i => i.CreationDate))
             {
-                <InvoiceTaxComponent @bind-Tax="Item.Taxes[i]" TaxList="TaxList" OnRemove="RemoveTax"></InvoiceTaxComponent>
+                <tr>
+                    <td>
+                        <InputSelect id="item-name" class="form-select" @bind-Value="item.ItemId" @oninput="() => OnAmountChanged(item.Id)">
+                            @foreach (var availableItem in ItemsList)
+                            {
+                                <option value="@availableItem.Id">@availableItem.Name</option>
+                            }
+                        </InputSelect>
+                    </td>
+                    <td>
+                        <InputNumber id="quantity" class="form-control" @bind-Value="item.Quantity" @oninput="() => OnAmountChanged(item.Id)" />
+                    </td>
+                    <td>
+                        <InputNumber id="amountSold" class="form-control" @bind-Value="item.Amount" @oninput="() => OnAmountChanged(item.Id)" />
+                    </td>
+                    <td>
+                        <span class="form-control border-2 border-primary">@item.Total.ToString("C")</span>
+                    </td>
+                    <td>
+                        <span class="form-control border-2 border-primary">@item.NetAmount.ToString("C")</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-outline-light btn-sm" type="button" @onclick="() => ShowPopup(item)">
+                            Edit Taxes
+                        </button>
+                        <a @onclick="() => DeleteItem(item.Id)" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
             }
-            <div class="d-flex justify-content-center align-items-center">
-                <div class="text-center rounded rounded-3 w-25 m-2 border border-3 border-warning">
-                    <h6 class="mt-4">Net Amount: @Item.NetAmount</h6>
+        </tbody>
+    </table>
+</div>
+@if (showPopup)
+{
+    <div class="modal fade show d-block" style="background-color:rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-light">
+                    <h5 class="modal-title">Edit Taxes</h5>
+                    <button type="button" class="btn-close bg-light" @onclick="ClosePopup"></button>
                 </div>
-            </div>
-            <div class="mt-3">
-                <button type="button" class="btn btn-danger" @onclick="RemoveThisItem">Remove Item</button>
+                <div class="modal-body bg-light">
+                    <InvoiceTaxComponent InvoiceTaxes="selectedItem.Taxes"
+                                         InvoiceTaxList="TaxList"
+                                         OnRemoveTax="RemoveTax"
+                                         InvoiceTaxesChanged="RemoveTax" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark" @onclick="ClosePopup">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
 @code {
-    [Parameter] public InvoiceItem Item { get; set; }
-    [Parameter] public List<Item> ItemsList { get; set; }
-    [Parameter] public List<Tax> TaxList { get; set; }
-    [Parameter] public EventCallback<InvoiceItem> OnRemove { get; set; }
     [Parameter]
-    public EventCallback<InvoiceItem> ItemChanged { get; set; }
-    private string itemSearchTerm = "";
-    private List<Item> filteredItems = new List<Item>();
-    private void RecalculateItemTotal()
-    {
-        ItemChanged.InvokeAsync(Item);
-    }
+    public List<InvoiceItem> Items { get; set; }
+    [Parameter]
+    public List<Item> ItemsList { get; set; }
+    [Parameter]
+    public List<Tax> TaxList { get; set; }
+    [Parameter]
+    public EventCallback<InvoiceItem> OnRemove { get; set; }
+    [Parameter]
+    public EventCallback<List<InvoiceItem>> ItemsChanged { get; set; }
+    private bool showPopup = false;
+    private InvoiceItem selectedItem;
 
-    private async Task OnItemChanged()
+    private void ShowPopup(InvoiceItem item)
     {
-        await ItemChanged.InvokeAsync(Item);
+        selectedItem = item;
+        showPopup = true;
     }
-
-    private void SelectItem(Item item)
+    private void ClosePopup()
     {
-        Item.ItemId = item.Id;
-        filteredItems.Clear(); // Hide suggestions list
+        showPopup = false;
     }
-
-    private void AddNewTax()
+    private async Task OnAmountChanged(Guid id)
     {
-        Item.Taxes.Add(new InvoiceItemTax());
+        var item = Items.Find(i => i.Id == id);
+        item.ModificationDate = DateTime.Now;
+        await ItemsChanged.InvokeAsync();
     }
-
-    private void RemoveTax(InvoiceItemTax tax)
+    private void DeleteItem(Guid id)
     {
-        Item.Taxes.Remove(tax);
+        var item = Items.Find(i => i.Id == id);
+        Items.Remove(item);
     }
-
-    private async Task RemoveThisItem()
+    private async Task RemoveTax()
     {
-        await OnRemove.InvokeAsync(Item);
+        await ItemsChanged.InvokeAsync();
     }
 }

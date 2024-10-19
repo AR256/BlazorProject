@@ -40,6 +40,7 @@ namespace BlazorProject.Application.Services
                 Code = invoice.Code,
                 CustomerId = invoice.CustomerId,
                 DateTimeIssued = invoice.DateTimeIssued,
+                ModificationDate = invoice.ModificationDate,
                 NetAmount = invoice.NetAmount,
                 InvoiceItems = invoice.InvoiceItems.Select(i => new InvoiceItemDto
                 {
@@ -49,11 +50,15 @@ namespace BlazorProject.Application.Services
                     Quantity = i.Quantity,
                     Amount = i.Amount,
                     NetAmount = i.NetAmount,
+                    CreationDate = i.CreationDate,
+                    ModificationDate = i.ModificationDate,
                     Taxes = i.InvoiceItemTaxes.Select(t => new InvoiceItemTaxDto
                     {
                         Id = t.Id,
                         TaxId = t.TaxId,
-                        Amount = t.TaxAmount
+                        Amount = t.TaxAmount,
+                        CreationDate = t.CreationDate,
+                        ModificationDate = t.ModificationDate
                     }).ToList()
                 }).ToList()
             };
@@ -78,6 +83,7 @@ namespace BlazorProject.Application.Services
                 CustomerId = invoiceDto.CustomerId,
                 DateTimeIssued = invoiceDto.DateTimeIssued,
                 NetAmount = invoiceDto.NetAmount,
+                ModificationDate = invoiceDto.ModificationDate,
                 InvoiceItems = invoiceDto.InvoiceItems.Select(i => new InvoiceItem
                 {
                     Id = Guid.NewGuid(),
@@ -86,12 +92,16 @@ namespace BlazorProject.Application.Services
                     Quantity = i.Quantity,
                     Amount = i.Amount,
                     NetAmount = i.NetAmount,
+                    CreationDate = i.CreationDate,
+                    ModificationDate = i.ModificationDate,
                     InvoiceItemTaxes = i.Taxes.Select(t => new InvoiceItemTax
                     {
                         Id = Guid.NewGuid(),
                         TaxId = t.TaxId,
                         TaxAmount = t.Amount,
-                        InvoiceItemId = i.Id
+                        InvoiceItemId = i.Id,
+                        CreationDate = t.CreationDate,
+                        ModificationDate = t.ModificationDate
                     }).ToList()
                 }).ToList()
             };
@@ -100,11 +110,11 @@ namespace BlazorProject.Application.Services
         public async Task UpdateInvoice(Guid id, InvoiceDto invoiceDto)
         {
             var existingInvoice = await _invoiceRepository.GetInvoiceByIdAsync(id) ?? throw new NotFoundException();
-            existingInvoice.DateTimeIssued = DateTime.Now;
             existingInvoice.CustomerId = invoiceDto.CustomerId;
             existingInvoice.Code = invoiceDto.Code;
             existingInvoice.NetAmount = invoiceDto.NetAmount;
             existingInvoice.InvoiceTypeId = invoiceDto.InvoiceTypeId;
+            existingInvoice.ModificationDate = DateTime.Now;
             foreach (var existingItem in existingInvoice.InvoiceItems.ToList())
             {
                 foreach (var existingTax in existingItem.InvoiceItemTaxes.ToList())
@@ -124,12 +134,16 @@ namespace BlazorProject.Application.Services
                     Quantity = item.Quantity,
                     InvoiceId = existingInvoice.Id,
                     NetAmount = existingInvoice.NetAmount,
+                    ModificationDate = item.ModificationDate,
+                    CreationDate = item.CreationDate,
                     InvoiceItemTaxes = item.Taxes.Select(tax => new InvoiceItemTax
                     {
                         Id = Guid.NewGuid(),
                         TaxId = tax.TaxId,
                         TaxAmount = tax.Amount,
                         InvoiceItemId = itemId,
+                        ModificationDate = tax.ModificationDate,
+                        CreationDate = tax.CreationDate,
                     }).ToList()
                 };
                 _invoiceRepository.AddInvoiceItem(newItem);

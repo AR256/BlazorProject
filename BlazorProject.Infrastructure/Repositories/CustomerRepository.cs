@@ -1,4 +1,5 @@
-﻿using BlazorProject.Application.Exceptions.BlazorProject.Application.Exceptions;
+﻿using BlazorProject.Application.Exceptions;
+using BlazorProject.Application.Exceptions.BlazorProject.Application.Exceptions;
 using BlazorProject.Domain.Entities;
 using BlazorProject.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,11 @@ namespace BlazorProject.Infrastructure.Repositories
         }
         public async Task AddAsync(Customer customer)
         {
+            var existingCustomer = await _context.Customers.FirstOrDefaultAsync(i => i.Code == customer.Code);
+            if (existingCustomer != null)
+            {
+                throw new DuplicateEntityException($"A customer with the code {customer.Code} already exists.");
+            }
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
         }
@@ -49,6 +55,12 @@ namespace BlazorProject.Infrastructure.Repositories
 
         public async Task UpdateAsync(Customer customer)
         {
+            var existingCustomer = await _context.Customers.FirstOrDefaultAsync(i => i.Code == customer.Code && i.Id != customer.Id);
+
+            if (existingCustomer != null)
+            {
+                throw new DuplicateEntityException($"A tax with the code {customer.Code} already exists.");
+            }
             _context.Customers.Update(customer);
             await _context.SaveChangesAsync();
         }

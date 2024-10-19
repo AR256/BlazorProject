@@ -8,6 +8,10 @@
 <EditForm method="post" FormName="EditOrAddNewItemForm" Model="item" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger">@ErrorMessage</div>
+    }
 
     <div>
         <label for="name" class="form-label">Name:</label>
@@ -24,12 +28,14 @@
 
 <a href="/items" class="btn btn-secondary mt-2">Cancel</a>
 
+
 @code {
     [Parameter]
     public Guid? Id { get; set; }
     [SupplyParameterFromForm]
     public  Item item { get; set; } = new();
     private bool isEdit = false;
+    private string ErrorMessage;
     protected override async Task OnInitializedAsync()
     {
         isEdit = Id.HasValue;
@@ -42,19 +48,45 @@
     }
     private async Task HandleValidSubmit()
     {
-        if (isEdit)
+        try
         {
-            // Edit existing item
-            await ItemService.UpdateItemAsync(item);
+            if (isEdit)
+            {
+                // Edit existing item
+                var response = await ItemService.UpdateItemAsync(item);
+                if (response.IsSuccessStatusCode)
+                {
+                    var successMessage = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                    ErrorMessage = successMessage.Message;
+                    Navigation.NavigateTo("/items");
+                }
+                else
+                {
+                    var result = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                    ErrorMessage = result.Message;
+                }
+            }
+            else
+            {
+                    var response = await ItemService.AddItemAsync(item);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var successMessage = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                        ErrorMessage = successMessage.Message;
+                        Navigation.NavigateTo("/items");
+                    }
+                    else
+                    {
+                        var result = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                        ErrorMessage = result.Message;
+                    }
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Add new item
-            await ItemService.AddItemAsync(item);
+            ErrorMessage = ex.Message;
         }
 
-        // Navigate back to items list after saving
-        Navigation.NavigateTo("/items");
     }
 
 }

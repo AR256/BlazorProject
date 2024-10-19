@@ -5,7 +5,7 @@
 <PageTitle>Customers</PageTitle>
 <h3>Customers</h3>
 
-<a href="/customers/add" class="btn btn-primary">Add New Customer</a>
+<a href="/customers/add" class="btn btn-success">Add New Customer</a>
 <div class="dropdown mt-2">
     <input type="text" @bind="searchTerm" @oninput="FilterCustomers" class="form-control" placeholder="Search by Name or Code" autocomplete="off" />
 </div>
@@ -21,8 +21,8 @@ else
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>Name</th>
                 <th>Code</th>
+                <th>Name</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -32,8 +32,8 @@ else
                 @foreach (var customer in filteredCustomers)
                 {
                     <tr>
-                        <td>@customer.Name</td>
                         <td>@customer.Code</td>
+                        <td>@customer.Name</td>
                         <td>
                             <a href="/customers/edit/@customer.Id" class="btn btn-outline-dark btn-sm">
                                 <i class="bi bi-pencil-square"></i>
@@ -89,9 +89,12 @@ else
         filteredCustomers.Clear();
     }
 
-    private void FilterCustomers(ChangeEventArgs e)
+    private void FilterCustomers(ChangeEventArgs? e = null)
     {
-        searchTerm = e.Value?.ToString();
+        if (e != null)
+        {
+            searchTerm = e.Value?.ToString();
+        }
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             filteredCustomers = customers;
@@ -117,6 +120,8 @@ else
     private async Task DeleteCustomer(Guid id)
     {
         await CustomerService.DeleteCustomerAsync(id);
-        customers = await CustomerService.GetCustomersAsync(); // Refresh items list after deletion
+        customers = await CustomerService.GetCustomersAsync();
+        FilterCustomers();
+        StateHasChanged();
     }
 }

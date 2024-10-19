@@ -10,6 +10,7 @@ namespace BlazorProject.Application.DTOS
         public Guid InvoiceTypeId { get; set; }
         public DateTime DateTimeIssued { get; set; }
         public decimal NetAmount { get; set; }
+        public DateTime ModificationDate { get; set; }
 
         public List<InvoiceItemDto> InvoiceItems { get; set; } = [];
     }

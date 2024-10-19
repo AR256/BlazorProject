@@ -39,6 +39,8 @@ namespace BlazorProject.Infrastructure.Repositories
         {
             return await _context.Invoices
                                  .Include(i => i.Customer)
+                                 .Include(i => i.InvoiceItems)
+                                 .ThenInclude(t => t.InvoiceItemTaxes)
                                  .ToListAsync();
         }
 

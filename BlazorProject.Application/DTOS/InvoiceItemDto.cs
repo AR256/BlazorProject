@@ -9,6 +9,8 @@
         public decimal Amount { get; set; }
         public decimal Total => Quantity * Amount; 
         public decimal NetAmount { get; set; }
+        public DateTime CreationDate { get; set; }
+        public DateTime ModificationDate { get; set; }
 
         public List<InvoiceItemTaxDto> Taxes { get; set; } = []; 
     }

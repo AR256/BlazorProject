@@ -1,6 +1,9 @@
 ﻿using BlazorProject.Application.DTOS;
+using BlazorProject.Application.Exceptions;
+using BlazorProject.Application.Exceptions.BlazorProject.Application.Exceptions;
 using BlazorProject.Domain.Entities;
 using BlazorProject.Domain.Interfaces;
+using BlazorProject.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,29 +39,56 @@ namespace BlazorProject.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerDto dto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var customer = new Customer { Id = Guid.NewGuid(), Name = dto.Name, Code = dto.Code };
+                await _customerRepository.AddAsync(customer);
+                return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
             }
-            var customer = new Customer{ Id = Guid.NewGuid(), Name = dto.Name, Code = dto.Code };
-            await _customerRepository.AddAsync(customer);
-            return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
+            catch (DuplicateEntityException ex)
+            {
+                return BadRequest(new ApiResponse { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse { Message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCustomer(Guid id, [FromBody] CustomerDto dto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var customer = await _customerRepository.GetByIdAsync(id);
+                if (customer == null)
+                    throw new NotFoundException($"Tax with Id {id} is not found");
+                customer.Name = dto.Name;
+                customer.Code = dto.Code;
+                await _customerRepository.UpdateAsync(customer);
+                return Ok(new ApiResponse { Message = "Tax updated successfully." });
             }
-            var customer = await _customerRepository.GetByIdAsync(id);
-            if (customer == null)
-                return NotFound();
-            customer.Name = dto.Name;
-            customer.Code = dto.Code;
-            await _customerRepository.UpdateAsync(customer);
-            return NoContent();
+            catch (DuplicateEntityException ex)
+            {
+                return BadRequest(new ApiResponse { Message = ex.Message });
+            }
+            catch (NotFoundException ex)
+            {
+                return BadRequest(new ApiResponse { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse { Message = ex.Message });
+            }
+           
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(Guid id)

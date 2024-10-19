@@ -1,4 +1,5 @@
-﻿using BlazorProject.Application.Exceptions.BlazorProject.Application.Exceptions;
+﻿using BlazorProject.Application.Exceptions;
+using BlazorProject.Application.Exceptions.BlazorProject.Application.Exceptions;
 using BlazorProject.Domain.Entities;
 using BlazorProject.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,11 @@ namespace BlazorProject.Infrastructure.Repositories
         }
         public async Task AddAsync(Tax tax)
         {
+            var existingTax = await _context.Taxes.FirstOrDefaultAsync(i => i.Code == tax.Code);
+            if (existingTax != null)
+            {
+                throw new DuplicateEntityException($"A tax with the code {tax.Code} already exists.");
+            }
             _context.Taxes.Add(tax);
             await _context.SaveChangesAsync();
         }
@@ -49,6 +55,12 @@ namespace BlazorProject.Infrastructure.Repositories
 
         public async Task UpdateAsync(Tax tax)
         {
+            var existingTax = await _context.Taxes.FirstOrDefaultAsync(i => i.Code == tax.Code && i.Id != tax.Id);
+
+            if (existingTax != null)
+            {
+                throw new DuplicateEntityException($"A tax with the code {tax.Code} already exists.");
+            }
             _context.Taxes.Update(tax);
             await _context.SaveChangesAsync();
         }

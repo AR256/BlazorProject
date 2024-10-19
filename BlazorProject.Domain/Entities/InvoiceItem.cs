@@ -23,6 +23,8 @@ namespace BlazorProject.Domain.Entities
         [Required]
         public decimal Amount { get; set; }
         public decimal NetAmount { get; set; }
+        public DateTime CreationDate { get; set; }
+        public DateTime ModificationDate { get; set; }
         public Item Item { get; set; }
         public Invoice Invoice { get; set; }
         public ICollection<InvoiceItemTax> InvoiceItemTaxes { get; set; } = new HashSet<InvoiceItemTax>();

@@ -7,7 +7,7 @@
                 <th>ID</th>
                 <th>Quantity</th>
                 <th>Amount</th>
-                <th>Total</th>
+                <th>Item Total</th>
                 <th>Net Amount</th>
                 <th></th>
             </tr>
@@ -61,8 +61,7 @@
                 <div class="modal-body bg-light">
                     <InvoiceTaxComponent InvoiceTaxes="selectedItem.Taxes"
                                          InvoiceTaxList="TaxList"
-                                         OnRemoveTax="RemoveTax"
-                                         InvoiceTaxesChanged="RemoveTax" />
+                                         InvoiceTaxesChanged="() => OnAmountChanged(selectedItem.Id)" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-dark" @onclick="ClosePopup">Close</button>
@@ -105,9 +104,5 @@
     {
         var item = Items.Find(i => i.Id == id);
         Items.Remove(item);
-    }
-    private async Task RemoveTax()
-    {
-        await ItemsChanged.InvokeAsync();
     }
 }

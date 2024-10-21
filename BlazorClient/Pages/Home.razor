@@ -1,6 +1,42 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Invoice Management System</PageTitle>
 
-<h1>E-Invoice Application</h1>
+<div class="container mt-5">
+    <h1>Welcome to the Invoice Management System</h1>
+    <p class="lead">This application allows you to easily manage invoices, customers, items, and taxes.</p>
 
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Key Features</h3>
+            <ul class="list-group">
+                <li class="list-group-item">Manage invoices with ease.</li>
+                <li class="list-group-item">Create and update customer details.</li>
+                <li class="list-group-item">Add, edit, and delete items on invoices.</li>
+                <li class="list-group-item">Apply taxes to items and recalculate totals.</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h3>Navigation</h3>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="/invoices">Manage Invoices</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="/items">Manage Items</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="/customers">Manage Customers</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="/taxes">Manage Taxes</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h4>About the Application</h4>
+        <p>This Invoice Management System is built using Blazor WebAssembly. It allows businesses to keep track of their invoices, manage customers, add items to invoices, and apply various taxes. The system provides an intuitive and efficient way to handle financial records and make billing straightforward.</p>
+    </div>
+</div>

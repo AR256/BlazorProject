@@ -49,9 +49,9 @@
             ItemsList="items"
             TaxList="taxes"
             ItemsChanged="RecalculateInvoiceNetAmount" />
-            <div class="text-dark me-3 p-1 bg-success fw-bolder w-100 text-center d-flex justify-content-start">
-                <label class="text-white">Total Net Amount: </label>
-                <span class="bg-black text-light"> @invoice.NetAmount.ToString("C")</span>
+            <div class="text-dark me-3 p-1 bg-success fw-bolder w-100 text-center d-flex justify-content-start gap-1">
+                <label class="text-white fs-4">Total Net Amount: </label>
+                <span class="bg-black text-light fs-4"> @invoice.NetAmount.ToString("C")</span>
             </div>
         </div>
 

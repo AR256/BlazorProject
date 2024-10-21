@@ -7,31 +7,30 @@
 <PageTitle>Invoices</PageTitle>
 <h3>Invoices</h3>
 
-<button class="btn btn-success mb-3" @onclick="AddNewInvoice">Add Invoice</button>
+<button class="btn btn-success" @onclick="AddNewInvoice">Add New Invoice</button>
+
+<div class="dropdown my-2">
+    <input type="text" @bind="searchTerm" @oninput="FilterInvoices" class="form-control" placeholder="Search by Customer Name or Code" autocomplete="off" />
+</div>
+
 <table class="table table-dark table-striped-columns">
     <thead>
         <tr>
             <th>Code</th>
             <th>Customer</th>
             <th>Date Issued</th>
-            <th>Net Amount</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @if (invoices == null)
+        @if (filteredInvoices != null && filteredInvoices.Any())
         {
-            <tr>Loading...</tr>
-        }
-        else
-        {
-            @foreach (var invoice in invoices.OrderByDescending(i => i.DateTimeIssued))
+            @foreach (var invoice in filteredInvoices.OrderByDescending(i => i.DateTimeIssued))
             {
                 <tr>
                     <td>@invoice.Code</td>
-                    <td>@customers.Find(i => i.Id ==invoice.CustomerId).Name</td>
+                    <td>@customers.Find(i => i.Id == invoice.CustomerId).Name</td>
                     <td>@invoice.DateTimeIssued</td>
-                    <td>@invoice.NetAmount.ToString("C")</td>
                     <td>
                         <button class="btn btn-outline-light" @onclick="() => EditInvoice(invoice.Id)">
                             <i class="bi bi-pencil-square"></i>
@@ -43,6 +42,12 @@
                 </tr>
             }
         }
+        else
+        {
+            <tr>
+                <td colspan="4">No items found</td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -50,14 +55,52 @@
     private List<Invoice> invoices;
     private List<Customer> customers;
     private List<InvoiceType> invoiceTypes;
+    private List<Invoice> filteredInvoices = new List<Invoice>();
+    private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         invoices = await InvoiceService.GetAllInvoicesAsync();
         customers = await CustomerService.GetCustomersAsync();
         invoiceTypes = await InvoiceTypeService.GetInvoiceTypesAsync();
+        filteredInvoices = invoices;
     }
+    private List<Invoice> FilteredInvoices
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return new List<Invoice>();
 
+            return invoices.Where(invoice =>
+                customers.Find(c => c.Id == invoice.CustomerId).Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                invoice.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+    private void FilterInvoices(ChangeEventArgs? e = null)
+    {
+        if (e != null)
+        {
+            searchTerm = e.Value?.ToString();
+        }
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredInvoices = invoices;
+        }
+        else
+        {
+            filteredInvoices = invoices
+                .Where(invoice => customers.Find(c => c.Id == invoice.CustomerId).Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                               invoice.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString();
+        filteredInvoices = FilteredInvoices;
+    }
     private void AddNewInvoice()
     {
         NavigationManager.NavigateTo("/invoices/add");

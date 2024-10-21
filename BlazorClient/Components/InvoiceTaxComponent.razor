@@ -24,7 +24,6 @@
         </div>
         <ValidationMessage For="@(() => invoiceTax.TaxId)" />
         <ValidationMessage For="@(() => invoiceTax.Amount)" />
-
     </div>
 }
 
@@ -33,15 +32,12 @@
     public List<InvoiceItemTax> InvoiceTaxes { get; set; }
     [Parameter]
     public List<Tax> InvoiceTaxList { get; set; }
-    [Parameter] 
-    public EventCallback<InvoiceItemTax> OnRemoveTax { get; set; }
     [Parameter]
     public EventCallback<List<InvoiceItemTax>> InvoiceTaxesChanged { get; set; }
     private async Task RemoveThisTax(Guid id)
     {
         var invoiceTax = InvoiceTaxes.Find(t => t.Id == id);
         InvoiceTaxes.Remove(invoiceTax);
-        await OnRemoveTax.InvokeAsync(invoiceTax);
         await InvoiceTaxesChanged.InvokeAsync();
     }
     private async Task AddNewTax()
@@ -49,8 +45,8 @@
         InvoiceTaxes.Add(new InvoiceItemTax() { CreationDate = DateTime.Now, ModificationDate = DateTime.Now });
         await InvoiceTaxesChanged.InvokeAsync();
     }
-    private void NotifyTaxChange()
+    private async Task NotifyTaxChange()
     {
-        InvoiceTaxesChanged.InvokeAsync();
+        await InvoiceTaxesChanged.InvokeAsync();
     }
 }
